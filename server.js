@@ -131,7 +131,7 @@ app.use((req, res, next) =>
   next();
 });
 
-// JWT Verification Middleware
+// JWT Verification Middleware with Token Refresh
 const verifyToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
   
@@ -142,6 +142,15 @@ const verifyToken = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
+    
+    // Generate a new token with refreshed expiration
+    const newToken = jwt.sign(
+      { username: decoded.username, userType: decoded.userType },
+      JWT_SECRET,
+      { expiresIn: '30m' }
+    );
+    req.newToken = newToken;
+    
     next();
   } catch (e) {
     res.status(401).json({ error: 'Invalid or expired token' });
@@ -166,7 +175,7 @@ app.post('/api/login', async (req, res, next) =>
     const token = jwt.sign(
       { username: studentResults[0].username, userType: 'student' },
       JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '30m' }
     );
     
     var ret = { 
@@ -186,7 +195,7 @@ app.post('/api/login', async (req, res, next) =>
     const token = jwt.sign(
       { username: facultyResults[0].username, userType: 'faculty' },
       JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '30m' }
     );
     
     var ret = { 
@@ -323,7 +332,7 @@ app.patch('/api/edit/student', verifyToken, async (req, res, next) => {
     error = e.toString();
   }
 
-  var ret = { error: error };
+  var ret = { error: error, token: req.newToken };
   res.status(200).json(ret);
 });
 
@@ -363,7 +372,7 @@ app.patch('/api/edit/faculty', verifyToken, async (req, res, next) => {
     error = e.toString();
   }
 
-  var ret = { error: error };
+  var ret = { error: error, token: req.newToken };
   res.status(200).json(ret);
 });
 
@@ -391,7 +400,7 @@ app.delete('/api/delete/student', verifyToken, async (req, res, next) => {
     error = e.toString();
   }
 
-  var ret = { error: error };
+  var ret = { error: error, token: req.newToken };
   res.status(200).json(ret);
 });
 
@@ -419,7 +428,7 @@ app.delete('/api/delete/faculty', verifyToken, async (req, res, next) => {
     error = e.toString();
   }
 
-  var ret = { error: error };
+  var ret = { error: error, token: req.newToken };
   res.status(200).json(ret);
 });
 
