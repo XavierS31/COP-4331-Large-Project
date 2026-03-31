@@ -412,6 +412,129 @@ app.delete('/api/delete/faculty', verifyToken, async (req, res, next) => {
   res.status(200).json(ret);
 });
 
+app.post('/api/research/create', verifyToken, async (req, res, next) => {
+  // incoming: title, description, college, isopen (optional: postedAt)
+  // outgoing: error, research post object, newToken
+
+  // Only allow faculty to create research posts
+  if (req.user.userType !== 'faculty') {
+    return res.status(403).json({ error: 'Only faculty can create research posts', token: req.newToken });
+  }
+
+  const { title, description, college, isopen } = req.body;
+  const postedAt = req.body.postedAt || new Date().toISOString().split('T')[0];
+  
+  var error = '';
+
+  // Validate required fields
+  if (!title || !description || !college) {
+    error = "Title, description, and college are required";
+    return res.status(200).json({ error: error, token: req.newToken });
+  }
+
+  try {
+    const db = client.db('researchportal');
+    
+    // Get faculty member's _id
+    const faculty = await db.collection('faculty').findOne({ username: req.user.username });
+    
+    if (!faculty) {
+      error = "Faculty not found";
+      return res.status(200).json({ error: error, token: req.newToken });
+    }
+
+    // Create new research post linked to faculty's _id
+    const newResearchPost = {
+      facultyId: faculty._id,
+      title: title,
+      description: description,
+      college: college,
+      isOpen: isopen !== undefined ? isopen : true,
+      postedAt: postedAt
+    };
+
+    const result = await db.collection('research').insertOne(newResearchPost);
+
+    var ret = { 
+      error: error, 
+      researchPost: newResearchPost,
+      postId: result.insertedId,
+      token: req.newToken 
+    };
+    res.status(200).json(ret);
+  } catch (e) {
+    error = e.toString();
+    var ret = { error: error, token: req.newToken };
+    res.status(200).json(ret);
+  }
+});
+
+app.post('/api/applications/create', verifyToken, async (req, res, next) => {
+  // incoming: researchId, statement (optional: status, appliedAt)
+  // outgoing: error, application object, newToken
+
+  // Only allow students to create applications
+  if (req.user.userType !== 'student') {
+    return res.status(403).json({ error: 'Only students can create applications', token: req.newToken });
+  }
+
+  const { researchId, statement } = req.body;
+  const status = req.body.status || 'pending';
+  const appliedAt = req.body.appliedAt || new Date().toISOString().split('T')[0];
+  
+  var error = '';
+
+  // Validate required fields
+  if (!researchId || !statement) {
+    error = "researchId and statement are required";
+    return res.status(200).json({ error: error, token: req.newToken });
+  }
+
+  try {
+    const db = client.db('researchportal');
+    const { ObjectId } = require('mongodb');
+    
+    // Get student's _id
+    const student = await db.collection('students').findOne({ username: req.user.username });
+    
+    if (!student) {
+      error = "Student not found";
+      return res.status(200).json({ error: error, token: req.newToken });
+    }
+
+    // Verify research post exists
+    const research = await db.collection('research').findOne({ _id: new ObjectId(researchId) });
+    
+    if (!research) {
+      error = "Research post not found";
+      return res.status(200).json({ error: error, token: req.newToken });
+    }
+
+    // Create new application linked to student and research post
+    const newApplication = {
+      researchId: new ObjectId(researchId),
+      studentId: student._id,
+      status: status,
+      statement: statement,
+      appliedAt: appliedAt
+    };
+
+    const result = await db.collection('applications').insertOne(newApplication);
+
+    var ret = { 
+      error: error, 
+      application: newApplication,
+      applicationId: result.insertedId,
+      token: req.newToken 
+    };
+    res.status(200).json(ret);
+  } catch (e) {
+    error = e.toString();
+    var ret = { error: error, token: req.newToken };
+    res.status(200).json(ret);
+  }
+});
+
 async function start() {
   try {
     await client.connect();
