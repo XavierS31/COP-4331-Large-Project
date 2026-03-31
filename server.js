@@ -297,17 +297,13 @@ app.post('/api/signup/faculty', async (req, res, next) => {
 });
 
 app.patch('/api/edit/student', verifyToken, async (req, res, next) => {
-  // incoming: username, and any fields to update (firstName, lastName, password, ucfEmail, major, college)
+  // incoming: any fields to update (firstName, lastName, password, ucfEmail, major, college)
   // outgoing: error
 
-  const { username, firstName, lastName, password, ucfEmail, major, college } = req.body;
+  const { firstName, lastName, password, ucfEmail, major, college } = req.body;
+  const username = req.user.username;  // Use authenticated user's username from token
 
   var error = '';
-
-  if (!username) {
-    error = "Username is required";
-    return res.status(200).json({ error: error });
-  }
 
   // Build update object with only provided fields
   const updateFields = {};
@@ -337,17 +333,13 @@ app.patch('/api/edit/student', verifyToken, async (req, res, next) => {
 });
 
 app.patch('/api/edit/faculty', verifyToken, async (req, res, next) => {
-  // incoming: username, and any fields to update (firstName, lastName, password, email, role, department)
+  // incoming: any fields to update (firstName, lastName, password, email, role, department)
   // outgoing: error
 
-  const { username, firstName, lastName, password, email, role, department } = req.body;
+  const { firstName, lastName, password, email, role, department } = req.body;
+  const username = req.user.username;  // Use authenticated user's username from token
 
   var error = '';
-
-  if (!username) {
-    error = "Username is required";
-    return res.status(200).json({ error: error });
-  }
 
   // Build update object with only provided fields
   const updateFields = {};
@@ -377,17 +369,11 @@ app.patch('/api/edit/faculty', verifyToken, async (req, res, next) => {
 });
 
 app.delete('/api/delete/student', verifyToken, async (req, res, next) => {
-  // incoming: username
   // outgoing: error
 
-  const { username } = req.body;
+  const username = req.user.username;  // Use authenticated user's username from token
 
   var error = '';
-
-  if (!username) {
-    error = "Username is required";
-    return res.status(200).json({ error: error });
-  }
 
   try {
     const db = client.db('researchportal');
@@ -405,17 +391,11 @@ app.delete('/api/delete/student', verifyToken, async (req, res, next) => {
 });
 
 app.delete('/api/delete/faculty', verifyToken, async (req, res, next) => {
-  // incoming: username
   // outgoing: error
 
-  const { username } = req.body;
+  const username = req.user.username;  // Use authenticated user's username from token
 
   var error = '';
-
-  if (!username) {
-    error = "Username is required";
-    return res.status(200).json({ error: error });
-  }
 
   try {
     const db = client.db('researchportal');
