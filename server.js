@@ -7,10 +7,9 @@ app.use(express.json());
 
 
 const MongoClient = require('mongodb').MongoClient;
-const url = 'mongodb+srv://pbaldwin2800_db_user:QTSbWupEvXTs5MYx@cardscluster.ik3phkt.mongodb.net/?appName=CardsCluster';
+const url = 'mongodb+srv://TheBeast:lxKpzZrrsfs3CzKu@researchportal.lvzvius.mongodb.net/?appName=ResearchPortal';
 
 const client = new MongoClient(url);
-client.connect();
 
 var cardList = 
 [
@@ -160,27 +159,45 @@ app.post('/api/addcard', async (req, res, next) =>
 app.post('/api/login', async (req, res, next) => 
 {
   // incoming: login, password
-  // outgoing: id, firstName, lastName, error
+  // outgoing: user data (student or faculty), userType, error
 	
- var error = '';
+  var error = '';
 
   const { login, password } = req.body;
+  const db = client.db('researchportal');
 
-  const db = client.db('COP4331Cards');
-  const results = await db.collection('Users').find({Login:login,Password:password}).toArray();
+  // Check students table first
+  const studentResults = await db.collection('students').find({username:login,password:password}).toArray();
 
-  var id = -1;
-  var fn = '';
-  var ln = '';
-
-  if( results.length > 0 )
+  if( studentResults.length > 0 )
   {
-    id = results[0].UserID;
-    fn = results[0].FirstName;
-    ln = results[0].LastName;
+    var ret = { 
+      user: studentResults[0],
+      userType: 'student',
+      error: error
+    };
+    return res.status(200).json(ret);
   }
 
-  var ret = { id:id, firstName:fn, lastName:ln, error:''};
+  // Check faculty table if student not found
+  const facultyResults = await db.collection('faculty').find({username:login,password:password}).toArray();
+
+  if( facultyResults.length > 0 )
+  {
+    var ret = { 
+      user: facultyResults[0],
+      userType: 'faculty',
+      error: error
+    };
+    return res.status(200).json(ret);
+  }
+
+  // No user found in either table
+  var ret = { 
+    user: null,
+    userType: null,
+    error: error
+  };
   res.status(200).json(ret);
 });
 
@@ -209,34 +226,36 @@ app.post('/api/searchcards', async (req, res, next) =>
   res.status(200).json(ret);
 });
 
-app.post('/api/signup', async (req, res, next) => {
-  // incoming: firstName, lastName, login, password
+app.post('/api/signup/student', async (req, res, next) => {
+  // incoming: firstName, lastName, login, password, ucfEmail, major, college
   // outgoing: error
 
-  const { firstName, lastName, login, password } = req.body;
+  const { firstName, lastName, login, password, ucfEmail, major, college } = req.body;
 
-  // We'll create a new user object. 
-  // In your login code, you look for 'UserID', so we'll generate a simple one here.
-  const newUser = {
-    FirstName: firstName,
-    LastName: lastName,
-    Login: login,
-    Password: password,
-    UserID: Date.now() // Simple unique ID generator for now
+  // Create a new student object with all database fields
+  const newStudent = {
+    firstName: firstName,
+    lastName: lastName,
+    username: login,
+    password: password,
+    ucfEmail: ucfEmail,
+    major: major,
+    college: college
   };
 
   var error = '';
 
   try {
-    const db = client.db('COP4331Cards');
+    const db = client.db('researchportal');
     
-    // Check if user already exists
-    const existingUser = await db.collection('Users').find({ Login: login }).toArray();
+    // Check if user already exists in students or faculty tables
+    const existingStudent = await db.collection('students').find({ username: login }).toArray();
+    const existingFaculty = await db.collection('faculty').find({ username: login }).toArray();
     
-    if (existingUser.length > 0) {
+    if (existingStudent.length > 0 || existingFaculty.length > 0) {
       error = "User already exists";
     } else {
-      await db.collection('Users').insertOne(newUser);
+      await db.collection('students').insertOne(newStudent);
     }
   } catch (e) {
     error = e.toString();
@@ -246,4 +265,56 @@ app.post('/api/signup', async (req, res, next) => {
   res.status(200).json(ret);
 });
 
-app.listen(5000); // start Node + Express server on port 5000
+app.post('/api/signup/faculty', async (req, res, next) => {
+  // incoming: firstName, lastName, login, password, email, role, department
+  // outgoing: error
+
+  const { firstName, lastName, login, password, email, role, department } = req.body;
+
+  // Create a new faculty object with all database fields
+  const newFaculty = {
+    firstName: firstName,
+    lastName: lastName,
+    username: login,
+    password: password,
+    email: email,
+    role: role,
+    department: department
+  };
+
+  var error = '';
+
+  try {
+    const db = client.db('researchportal');
+    
+    // Check if user already exists in students or faculty tables
+    const existingStudent = await db.collection('students').find({ username: login }).toArray();
+    const existingFaculty = await db.collection('faculty').find({ username: login }).toArray();
+    
+    if (existingStudent.length > 0 || existingFaculty.length > 0) {
+      error = "User already exists";
+    } else {
+      await db.collection('faculty').insertOne(newFaculty);
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  var ret = { error: error };
+  res.status(200).json(ret);
+});
+
+async function start() {
+  try {
+    await client.connect();
+    console.log('Connected to MongoDB');
+    app.listen(5000, () => {
+      console.log('Server running on port 5000');
+    });
+  } catch (error) {
+    console.error('Failed to connect to MongoDB:', error);
+    process.exit(1);
+  }
+}
+
+start();
