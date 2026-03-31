@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 app.use(cors());
@@ -10,6 +11,7 @@ const MongoClient = require('mongodb').MongoClient;
 const url = 'mongodb+srv://TheBeast:lxKpzZrrsfs3CzKu@researchportal.lvzvius.mongodb.net/?appName=ResearchPortal';
 
 const client = new MongoClient(url);
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
 var cardList = 
 [
@@ -129,32 +131,22 @@ app.use((req, res, next) =>
   next();
 });
 
-app.post('/api/addcard', async (req, res, next) =>
-{
-  // incoming: userId, color
-  // outgoing: error
-	
-  const { userId, card } = req.body;
-
-  const newCard = {Card:card,UserId:userId};
-  var error = '';
-
-  try
-  {
-    const db = client.db('COP4331Cards');
-    const result = db.collection('Cards').insertOne(newCard);
-  }
-  catch(e)
-  {
-    error = e.toString();
+// JWT Verification Middleware
+const verifyToken = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Token required' });
   }
 
-  cardList.push( card );
-
-  var ret = { error: error };
-  res.status(200).json(ret);
-});
-
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (e) {
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
+};
 
 app.post('/api/login', async (req, res, next) => 
 {
@@ -171,9 +163,16 @@ app.post('/api/login', async (req, res, next) =>
 
   if( studentResults.length > 0 )
   {
+    const token = jwt.sign(
+      { username: studentResults[0].username, userType: 'student' },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    
     var ret = { 
       user: studentResults[0],
       userType: 'student',
+      token: token,
       error: error
     };
     return res.status(200).json(ret);
@@ -184,9 +183,16 @@ app.post('/api/login', async (req, res, next) =>
 
   if( facultyResults.length > 0 )
   {
+    const token = jwt.sign(
+      { username: facultyResults[0].username, userType: 'faculty' },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    
     var ret = { 
       user: facultyResults[0],
       userType: 'faculty',
+      token: token,
       error: error
     };
     return res.status(200).json(ret);
@@ -196,35 +202,12 @@ app.post('/api/login', async (req, res, next) =>
   var ret = { 
     user: null,
     userType: null,
+    token: null,
     error: error
   };
   res.status(200).json(ret);
 });
 
-
-app.post('/api/searchcards', async (req, res, next) => 
-{
-  // incoming: userId, search
-  // outgoing: results[], error
-
-  var error = '';
-
-  const { userId, search } = req.body;
-
-  var _search = search.trim();
-  
-  const db = client.db('COP4331Cards');
-  const results = await db.collection('Cards').find({"Card":{$regex:_search+'.*', $options:'i'}}).toArray();
-  
-  var _ret = [];
-  for( var i=0; i<results.length; i++ )
-  {
-    _ret.push( results[i].Card );
-  }
-  
-  var ret = {results:_ret, error:error};
-  res.status(200).json(ret);
-});
 
 app.post('/api/signup/student', async (req, res, next) => {
   // incoming: firstName, lastName, login, password, ucfEmail, major, college
@@ -295,6 +278,142 @@ app.post('/api/signup/faculty', async (req, res, next) => {
       error = "User already exists";
     } else {
       await db.collection('faculty').insertOne(newFaculty);
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  var ret = { error: error };
+  res.status(200).json(ret);
+});
+
+app.patch('/api/edit/student', verifyToken, async (req, res, next) => {
+  // incoming: username, and any fields to update (firstName, lastName, password, ucfEmail, major, college)
+  // outgoing: error
+
+  const { username, firstName, lastName, password, ucfEmail, major, college } = req.body;
+
+  var error = '';
+
+  if (!username) {
+    error = "Username is required";
+    return res.status(200).json({ error: error });
+  }
+
+  // Build update object with only provided fields
+  const updateFields = {};
+  if (firstName) updateFields.firstName = firstName;
+  if (lastName) updateFields.lastName = lastName;
+  if (password) updateFields.password = password;
+  if (ucfEmail) updateFields.ucfEmail = ucfEmail;
+  if (major) updateFields.major = major;
+  if (college) updateFields.college = college;
+
+  try {
+    const db = client.db('researchportal');
+    const result = await db.collection('students').updateOne(
+      { username: username },
+      { $set: updateFields }
+    );
+
+    if (result.matchedCount === 0) {
+      error = "Student not found";
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  var ret = { error: error };
+  res.status(200).json(ret);
+});
+
+app.patch('/api/edit/faculty', verifyToken, async (req, res, next) => {
+  // incoming: username, and any fields to update (firstName, lastName, password, email, role, department)
+  // outgoing: error
+
+  const { username, firstName, lastName, password, email, role, department } = req.body;
+
+  var error = '';
+
+  if (!username) {
+    error = "Username is required";
+    return res.status(200).json({ error: error });
+  }
+
+  // Build update object with only provided fields
+  const updateFields = {};
+  if (firstName) updateFields.firstName = firstName;
+  if (lastName) updateFields.lastName = lastName;
+  if (password) updateFields.password = password;
+  if (email) updateFields.email = email;
+  if (role) updateFields.role = role;
+  if (department) updateFields.department = department;
+
+  try {
+    const db = client.db('researchportal');
+    const result = await db.collection('faculty').updateOne(
+      { username: username },
+      { $set: updateFields }
+    );
+
+    if (result.matchedCount === 0) {
+      error = "Faculty not found";
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  var ret = { error: error };
+  res.status(200).json(ret);
+});
+
+app.delete('/api/delete/student', verifyToken, async (req, res, next) => {
+  // incoming: username
+  // outgoing: error
+
+  const { username } = req.body;
+
+  var error = '';
+
+  if (!username) {
+    error = "Username is required";
+    return res.status(200).json({ error: error });
+  }
+
+  try {
+    const db = client.db('researchportal');
+    const result = await db.collection('students').deleteOne({ username: username });
+
+    if (result.deletedCount === 0) {
+      error = "Student not found";
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  var ret = { error: error };
+  res.status(200).json(ret);
+});
+
+app.delete('/api/delete/faculty', verifyToken, async (req, res, next) => {
+  // incoming: username
+  // outgoing: error
+
+  const { username } = req.body;
+
+  var error = '';
+
+  if (!username) {
+    error = "Username is required";
+    return res.status(200).json({ error: error });
+  }
+
+  try {
+    const db = client.db('researchportal');
+    const result = await db.collection('faculty').deleteOne({ username: username });
+
+    if (result.deletedCount === 0) {
+      error = "Faculty not found";
     }
   } catch (e) {
     error = e.toString();
