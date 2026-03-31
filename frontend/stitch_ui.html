@@ -1,0 +1,1272 @@
+<!-- Design System -->
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Research Finder - Institutional Login</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Public_Sans:wght@300;400;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Material Symbols -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#2f3130",
+                        "primary-fixed-dim": "#f4c000",
+                        "on-tertiary-container": "#6f5500",
+                        "secondary-fixed-dim": "#c6c6c6",
+                        "on-primary-fixed-variant": "#594400",
+                        "surface-tint": "#755b00",
+                        "secondary": "#5e5e5e",
+                        "error": "#ba1a1a",
+                        "on-background": "#1a1c1b",
+                        "tertiary-fixed-dim": "#eec142",
+                        "surface-dim": "#dadad8",
+                        "on-primary-container": "#6e5500",
+                        "background": "#f9f9f7",
+                        "surface-container": "#eeeeec",
+                        "primary-fixed": "#ffdf91",
+                        "on-surface": "#1a1c1b",
+                        "on-tertiary-fixed": "#241a00",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f4f4f2",
+                        "on-secondary-fixed-variant": "#474747",
+                        "outline-variant": "#d2c5ab",
+                        "primary-container": "#ffc909",
+                        "on-surface-variant": "#4e4632",
+                        "surface-container-highest": "#e2e3e1",
+                        "on-error-container": "#93000a",
+                        "surface": "#f9f9f7",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#241a00",
+                        "secondary-fixed": "#e2e2e2",
+                        "surface-variant": "#e2e3e1",
+                        "outline": "#80765f",
+                        "inverse-primary": "#f4c000",
+                        "surface-container-high": "#e8e8e6",
+                        "tertiary": "#765b00",
+                        "primary": "#755b00",
+                        "on-secondary-fixed": "#1b1b1b",
+                        "tertiary-container": "#f9ca4b",
+                        "secondary-container": "#e2e2e2",
+                        "tertiary-fixed": "#ffdf94",
+                        "on-secondary-container": "#646464",
+                        "inverse-on-surface": "#f1f1ef",
+                        "surface-bright": "#f9f9f7",
+                        "on-tertiary-fixed-variant": "#594400",
+                        "on-primary": "#ffffff"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Public Sans"],
+                        "label": ["Public Sans"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .academic-gradient {
+            background: linear-gradient(135deg, #1a1c1b 0%, #2f3130 100%);
+        }
+
+        .gold-gradient-btn {
+            background: linear-gradient(135deg, #755b00 0%, #ffc909 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-surface font-body selection:bg-primary-container/30">
+    <!-- TopNavBar -->
+    <nav
+        class="fixed top-0 w-full z-50 bg-[#f9f9f7]/80 dark:bg-[#1a1c1b]/80 backdrop-blur-md flex justify-between items-center px-8 py-4 max-w-full">
+        <div class="flex items-center gap-8">
+            <span
+                class="text-xl font-black uppercase tracking-tighter text-[#1a1c1b] dark:text-[#f9f9f7] font-headline">Research
+                Finder</span>
+            <div class="hidden md:flex gap-6 font-['Manrope'] font-bold tracking-tight">
+                <a class="text-[#1a1c1b] dark:text-[#f9f9f7] opacity-70 hover:text-[#755b00] dark:hover:text-[#ffc909] transition-colors duration-300"
+                    href="#">Explore</a>
+                <a class="text-[#1a1c1b] dark:text-[#f9f9f7] opacity-70 hover:text-[#755b00] dark:hover:text-[#ffc909] transition-colors duration-300"
+                    href="#">Directory</a>
+                <a class="text-[#1a1c1b] dark:text-[#f9f9f7] opacity-70 hover:text-[#755b00] dark:hover:text-[#ffc909] transition-colors duration-300"
+                    href="#">Methodology</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button
+                class="font-headline font-bold text-[#755b00] dark:text-[#ffc909] px-4 py-2 hover:scale-95 duration-150 ease-in-out">Log
+                In</button>
+            <button
+                class="bg-primary px-6 py-2 rounded-lg font-headline font-bold text-on-primary hover:scale-95 duration-150 ease-in-out">Register</button>
+        </div>
+    </nav>
+    <!-- Main Content Canvas: Split Screen -->
+    <main class="min-h-screen pt-16 flex flex-col md:flex-row overflow-hidden">
+        <!-- Left Side: Visual/Branding Shell -->
+        <section
+            class="hidden md:flex md:w-1/2 academic-gradient relative items-center justify-center p-12 overflow-hidden">
+            <!-- Background Image with data-alt -->
+            <div class="absolute inset-0 opacity-40 mix-blend-overlay">
+                <img alt="" class="w-full h-full object-cover"
+                    data-alt="dramatic architectural shot of a modern minimalist university library interior with high ceilings and rows of scholarly books"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIWw4CTJxtE5_6Z3inJHDzGO6T-V3iKDR14LhGpv6UnbMfPw8c9ktEW5qUagBRF_nfqBCsrOqRLfeMoiyR4-chZnb-KbAlGKxp3sB3oaEAn3iVYCT3lJClHnFEZW7gBXJg_2zVTr-9CXuv0PLYPjobftRXO6tARyTIR6xcfIfknlQBrOGzrpO9ocFdxtMnXZItPdZHX1_yiE8QsZmh3oEVyCEQ1sAi57N5u1N-lZ5i8KmNBKZ9ho_-502X_pmAUtvGk7lDWbCbiKs" />
+            </div>
+            <div class="relative z-10 max-w-lg">
+                <div class="mb-8">
+                    <span class="material-symbols-outlined text-[#ffc909] text-6xl mb-4"
+                        data-icon="account_balance">account_balance</span>
+                    <h1 class="font-headline text-5xl font-extrabold text-white tracking-tighter leading-tight mb-6">
+                        Advancing Global <span class="text-[#ffc909]">Knowledge</span> Through Collaboration.
+                    </h1>
+                    <p class="text-white/80 text-lg font-body leading-relaxed mb-8">
+                        Welcome to the official University Research Portal. Access a repository of over 50,000
+                        peer-reviewed papers and ongoing doctoral studies.
+                    </p>
+                </div>
+                <!-- Stats "Bento-ish" Insight -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
+                        <p class="text-[#ffc909] font-headline font-black text-2xl">24k+</p>
+                        <p class="text-white/60 text-xs font-label tracking-widest uppercase">Active Researchers</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
+                        <p class="text-[#ffc909] font-headline font-black text-2xl">1.2M</p>
+                        <p class="text-white/60 text-xs font-label tracking-widest uppercase">Citations Indexed</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Right Side: Login Form Shell -->
+        <section class="w-full md:w-1/2 bg-surface flex items-center justify-center p-6 md:p-24">
+            <div class="w-full max-w-md">
+                <div class="mb-12">
+                    <h2 class="font-headline text-4xl font-bold text-on-surface tracking-tight mb-2">Institutional Login
+                    </h2>
+                    <p class="text-on-surface-variant font-body">Enter your credentials to access your research
+                        dashboard.</p>
+                </div>
+                <!-- Role Toggle Switch -->
+                <div class="bg-surface-container-low p-1.5 rounded-full flex mb-10 w-full">
+                    <button
+                        class="flex-1 py-3 px-6 rounded-full bg-surface-container-lowest text-primary font-headline font-bold text-sm shadow-sm transition-all">
+                        Student
+                    </button>
+                    <button
+                        class="flex-1 py-3 px-6 rounded-full text-on-surface-variant font-headline font-bold text-sm hover:text-on-surface transition-all">
+                        Faculty
+                    </button>
+                </div>
+                <!-- Form -->
+                <form class="space-y-6">
+                    <div class="space-y-1">
+                        <label
+                            class="font-label text-xs font-bold tracking-widest text-on-surface-variant uppercase">University
+                            Email</label>
+                        <div class="relative group">
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40"
+                                data-icon="alternate_email">alternate_email</span>
+                            <input
+                                class="w-full bg-surface-container-low border-none rounded-sm py-4 pl-12 pr-4 focus:ring-0 focus:ring-offset-0 border-b-2 border-transparent focus:border-primary-container transition-all placeholder:text-on-surface-variant/30"
+                                placeholder="username@university.edu" type="email" />
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-end">
+                            <label
+                                class="font-label text-xs font-bold tracking-widest text-on-surface-variant uppercase">Security
+                                Password</label>
+                            <a class="text-primary text-xs font-bold hover:underline decoration-[#ffc909]"
+                                href="#">Forgot Password?</a>
+                        </div>
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40"
+                                data-icon="lock_open">lock_open</span>
+                            <input
+                                class="w-full bg-surface-container-low border-none rounded-sm py-4 pl-12 pr-10 focus:ring-0 focus:ring-offset-0 border-b-2 border-transparent focus:border-primary-container transition-all placeholder:text-on-surface-variant/30"
+                                placeholder="••••••••" type="password" />
+                            <button
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40 hover:text-on-surface transition-colors"
+                                type="button">
+                                <span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 py-2">
+                        <input class="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary-container"
+                            id="remember" type="checkbox" />
+                        <label class="text-sm text-on-surface-variant font-body select-none" for="remember">Remember
+                            this device for 30 days</label>
+                    </div>
+                    <button
+                        class="w-full gold-gradient-btn text-white font-headline font-black py-5 rounded-lg shadow-xl shadow-primary/10 hover:scale-[0.98] transition-transform duration-150 mt-4 uppercase tracking-wider"
+                        type="submit">
+                        Authenticate Identity
+                    </button>
+                </form>
+                <div class="mt-12 pt-8 border-t border-outline-variant/15 text-center">
+                    <p class="text-on-surface-variant font-body text-sm">
+                        Trouble logging in? <a class="text-primary font-bold hover:underline decoration-[#ffc909]"
+                            href="#">Contact University IT Support</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer
+        class="w-full border-t border-[#d2c5ab]/15 bg-[#f4f4f2] dark:bg-[#1a1c1b] flex flex-col md:flex-row justify-between items-center px-12 py-10">
+        <div class="mb-4 md:mb-0">
+            <p class="font-['Public_Sans'] text-sm tracking-wide uppercase text-[#1a1c1b]/60 dark:text-[#f9f9f7]/60">
+                © 2024 University Research Portal. All rights reserved.
+            </p>
+        </div>
+        <div class="flex flex-wrap justify-center gap-8 font-['Public_Sans'] text-sm tracking-wide uppercase">
+            <a class="text-[#1a1c1b]/60 dark:text-[#f9f9f7]/60 hover:text-[#755b00] dark:hover:text-[#ffc909] underline decoration-[#ffc909] transition-opacity duration-150"
+                href="#">About</a>
+            <a class="text-[#1a1c1b]/60 dark:text-[#f9f9f7]/60 hover:text-[#755b00] dark:hover:text-[#ffc909] underline decoration-[#ffc909] transition-opacity duration-150"
+                href="#">Research Policy</a>
+            <a class="text-[#1a1c1b]/60 dark:text-[#f9f9f7]/60 hover:text-[#755b00] dark:hover:text-[#ffc909] underline decoration-[#ffc909] transition-opacity duration-150"
+                href="#">Help</a>
+            <a class="text-[#1a1c1b]/60 dark:text-[#f9f9f7]/60 hover:text-[#755b00] dark:hover:text-[#ffc909] underline decoration-[#ffc909] transition-opacity duration-150"
+                href="#">Privacy</a>
+            <a class="text-[#1a1c1b]/60 dark:text-[#f9f9f7]/60 hover:text-[#755b00] dark:hover:text-[#ffc909] underline decoration-[#ffc909] transition-opacity duration-150"
+                href="#">Ethics</a>
+        </div>
+    </footer>
+</body>
+
+</html>
+
+<!-- Login Screen -->
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Public+Sans:wght@300;400;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#2f3130",
+                        "primary-fixed-dim": "#f4c000",
+                        "on-tertiary-container": "#6f5500",
+                        "secondary-fixed-dim": "#c6c6c6",
+                        "on-primary-fixed-variant": "#594400",
+                        "surface-tint": "#755b00",
+                        "secondary": "#5e5e5e",
+                        "error": "#ba1a1a",
+                        "on-background": "#1a1c1b",
+                        "tertiary-fixed-dim": "#eec142",
+                        "surface-dim": "#dadad8",
+                        "on-primary-container": "#6e5500",
+                        "background": "#f9f9f7",
+                        "surface-container": "#eeeeec",
+                        "primary-fixed": "#ffdf91",
+                        "on-surface": "#1a1c1b",
+                        "on-tertiary-fixed": "#241a00",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f4f4f2",
+                        "on-secondary-fixed-variant": "#474747",
+                        "outline-variant": "#d2c5ab",
+                        "primary-container": "#ffc909",
+                        "on-surface-variant": "#4e4632",
+                        "surface-container-highest": "#e2e3e1",
+                        "on-error-container": "#93000a",
+                        "surface": "#f9f9f7",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#241a00",
+                        "secondary-fixed": "#e2e2e2",
+                        "surface-variant": "#e2e3e1",
+                        "outline": "#80765f",
+                        "inverse-primary": "#f4c000",
+                        "surface-container-high": "#e8e8e6",
+                        "tertiary": "#765b00",
+                        "primary": "#755b00",
+                        "on-secondary-fixed": "#1b1b1b",
+                        "tertiary-container": "#f9ca4b",
+                        "secondary-container": "#e2e2e2",
+                        "tertiary-fixed": "#ffdf94",
+                        "on-secondary-container": "#646464",
+                        "inverse-on-surface": "#f1f1ef",
+                        "surface-bright": "#f9f9f7",
+                        "on-tertiary-fixed-variant": "#594400",
+                        "on-primary": "#ffffff"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Public Sans"],
+                        "label": ["Public Sans"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #755b00 0%, #ffc909 100%);
+        }
+
+        .ghost-border {
+            border: 1px solid rgba(210, 197, 171, 0.15);
+        }
+    </style>
+</head>
+
+<body class="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+    <!-- TopNavBar -->
+    <nav
+        class="fixed top-0 w-full z-50 bg-[#f9f9f7]/80 dark:bg-[#1a1c1b]/80 backdrop-blur-md flex justify-between items-center px-8 py-4 max-w-full">
+        <div class="flex items-center gap-8">
+            <span
+                class="text-xl font-black uppercase tracking-tighter text-[#1a1c1b] dark:text-[#f9f9f7] font-headline">Research
+                Finder</span>
+            <div class="hidden md:flex items-center gap-6">
+                <a class="font-['Manrope'] font-bold tracking-tight text-[#1a1c1b] dark:text-[#f9f9f7] opacity-70 hover:text-[#755b00] dark:hover:text-[#ffc909] transition-colors duration-300"
+                    href="#">Explore</a>
+                <a class="font-['Manrope'] font-bold tracking-tight text-[#1a1c1b] dark:text-[#f9f9f7] opacity-70 hover:text-[#755b00] dark:hover:text-[#ffc909] transition-colors duration-300"
+                    href="#">Directory</a>
+                <a class="font-['Manrope'] font-bold tracking-tight text-[#1a1c1b] dark:text-[#f9f9f7] opacity-70 hover:text-[#755b00] dark:hover:text-[#ffc909] transition-colors duration-300"
+                    href="#">Methodology</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button
+                class="font-['Manrope'] font-bold text-[#1a1c1b] px-4 py-2 hover:text-[#755b00] transition-colors duration-300">Log
+                In</button>
+            <button
+                class="bg-primary-container text-on-primary-container font-['Manrope'] font-bold px-6 py-2 rounded-lg scale-95 duration-150 ease-in-out text-[#755b00] dark:text-[#ffc909] border-b-2 border-[#ffc909] pb-1">Register</button>
+        </div>
+    </nav>
+    <!-- Main Content: Registration Split Screen -->
+    <main class="min-h-screen pt-20 flex flex-col md:flex-row bg-surface">
+        <!-- Left Side: Inspirational Academic Visual -->
+        <section
+            class="relative w-full md:w-1/2 min-h-[400px] md:min-h-0 flex items-end p-12 overflow-hidden bg-inverse-surface">
+            <div class="absolute inset-0 opacity-40 mix-blend-overlay">
+                <img alt="University architecture" class="w-full h-full object-cover"
+                    data-alt="Modern university library interior with large glass windows and researchers studying under soft, focused ambient light at sunset"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuALfk62DdcEjt18unw-QYpJA8AjaJ4AOkff06ekgKia8_lSzepGjVqpVYD7Ha_RivG4KZWZu_Z-ZtTn1rBJw9rtMxQZbXziuVUxr3LD3idK--zfWLsC9d5kHQVsDatSa5HNzhB1QMPHELeCcrqa1z0MOb__BI8TAYVDZHU3_7Lw2mJbtlOvsegWzy-eLpoPpASIXE6uHRWwcjkJ6jl2zBE5QrqI-ZoYS03I8RE2wWmy_CQEZ6CrcIbWKDCYo65ST6iutLvoRGueoh0" />
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-on-background via-transparent to-transparent opacity-60">
+            </div>
+            <div class="relative z-10 max-w-lg">
+                <h1
+                    class="font-headline text-5xl md:text-6xl font-extrabold text-surface tracking-tighter leading-none mb-6">
+                    Pioneer New <br /><span class="text-primary-container">Frontiers.</span>
+                </h1>
+                <p class="text-surface-variant text-lg font-light leading-relaxed mb-8 opacity-90">
+                    Join an elite community of scholars. Access global data, collaborate on cross-disciplinary papers,
+                    and accelerate your research journey.
+                </p>
+                <div class="flex items-center gap-4">
+                    <div class="flex -space-x-4">
+                        <img alt="User 1" class="w-10 h-10 rounded-full border-2 border-inverse-surface"
+                            data-alt="Researcher profile portrait with warm studio lighting"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY-PPuy54YyCL0YAuIBkYyLKB_mil8DBtQ8mEQ-Qnb5cTkvl6fsn_4Mcw1RxLTI5GYe1YyeuxOCT4Q3YajHvs5i34KXMBDz8Z9flrwXjBXIHDCRgZ5QbI1l6MvNnWKt7ENd0ZQS0W3iIVfBOcy2eUy6FCfNWblLU9pbaMbDloRLNP8jJpzX4yWJriZTSa_CA_SPZxrhUS83qCslFHUzz93VMNO6yiERwIkm3LAUl332UzGpTolSAj4hOsRSQXY_hETmXjRPge5AOM" />
+                        <img alt="User 2" class="w-10 h-10 rounded-full border-2 border-inverse-surface"
+                            data-alt="Academic faculty member profile photo on neutral background"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIOMgUsaacgl85iKHOtQxesHr0OrQI4QEy3ftRV07z0-IVz2smZKrRpIq5i4y2sqvIWL7JTx8nJ8MMCoK2CyM7oRMf3VCxKWhzY_DFKg-P7pNFZsGxHquvUo82jYSBZCUoZSBQU1ytBmfMAscnuo21Va7iLh3fbRSQyvVCKV4xZrUmuUavOIZi_vTZsUFlO9Caafdx3Ti-lzF5k7UFv_T4Bkvwma5_7zDVyhGolpHpeAg9CCazwOTxYzw5qb7AEYtIDmZH9VJdee4" />
+                        <img alt="User 3" class="w-10 h-10 rounded-full border-2 border-inverse-surface"
+                            data-alt="Student researcher smiling in university campus setting"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuD60Cu1P4X0f2X0YAZtbtl1VXLsMaC2a5OKgXoVd_w-W_GxkZ_-qoEG9k837jCwg5PtR6Gqg9psxsmo6HkUklRBQb4-PP9Tt2hnLjkx9hdA_3GlHal74vvm1ibOzxkp1T4faCGngC4cMBE8DDtxB-Ijnu-1_SuJpskygxq-MaTgV-lRxCVUxA5mEti4SnSTQMLWN6r64MGyJelVmWlHWXRjAQX56rM_qlXumV2f2MNQdHFZrVFj1KhW0zxakVJwbpZpOtXUUCXeaFI" />
+                    </div>
+                    <span class="text-surface-container-high text-sm font-medium tracking-wide">+2.4k researchers active
+                        today</span>
+                </div>
+            </div>
+        </section>
+        <!-- Right Side: Registration Form -->
+        <section class="w-full md:w-1/2 flex items-center justify-center p-8 md:p-24 bg-surface">
+            <div class="w-full max-w-md">
+                <div class="mb-10">
+                    <span
+                        class="font-label text-xs font-bold tracking-[0.2em] text-primary uppercase mb-2 block">Institutional
+                        Access</span>
+                    <h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight">Create your account
+                    </h2>
+                </div>
+                <form class="space-y-6">
+                    <div class="space-y-1">
+                        <label
+                            class="font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Full
+                            Name</label>
+                        <input
+                            class="w-full bg-surface-container-low border-none focus:ring-0 rounded-sm text-on-surface py-4 px-4 placeholder:opacity-30 focus:border-b-2 focus:border-primary-container transition-all"
+                            placeholder="Dr. Julian Thorne" type="text" />
+                    </div>
+                    <div class="space-y-1">
+                        <label
+                            class="font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">University
+                            Email</label>
+                        <input
+                            class="w-full bg-surface-container-low border-none focus:ring-0 rounded-sm text-on-surface py-4 px-4 placeholder:opacity-30 focus:border-b-2 focus:border-primary-container transition-all"
+                            placeholder="thorne@university.edu" type="email" />
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label
+                                class="font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">ID
+                                Number</label>
+                            <input
+                                class="w-full bg-surface-container-low border-none focus:ring-0 rounded-sm text-on-surface py-4 px-4 placeholder:opacity-30 focus:border-b-2 focus:border-primary-container transition-all"
+                                placeholder="UF-8842" type="text" />
+                        </div>
+                        <div class="space-y-1">
+                            <label
+                                class="font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Role</label>
+                            <select
+                                class="w-full bg-surface-container-low border-none focus:ring-0 rounded-sm text-on-surface py-4 px-4 placeholder:opacity-30 focus:border-b-2 focus:border-primary-container transition-all appearance-none cursor-pointer">
+                                <option>Student</option>
+                                <option>Faculty</option>
+                                <option>Staff</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-y-1 relative">
+                        <label
+                            class="font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Password</label>
+                        <input
+                            class="w-full bg-surface-container-low border-none focus:ring-0 rounded-sm text-on-surface py-4 px-4 placeholder:opacity-30 focus:border-b-2 focus:border-primary-container transition-all"
+                            placeholder="••••••••" type="password" />
+                        <span
+                            class="material-symbols-outlined absolute right-4 top-10 text-on-surface-variant opacity-50 cursor-pointer text-sm">visibility</span>
+                    </div>
+                    <div class="pt-4">
+                        <button
+                            class="w-full btn-gradient py-4 text-on-primary font-headline font-bold rounded-lg shadow-xl shadow-primary/10 hover:scale-[1.02] transition-transform active:scale-95 flex items-center justify-center gap-2"
+                            type="submit">
+                            <span>Register Credentials</span>
+                            <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                        </button>
+                    </div>
+                </form>
+                <div class="mt-8 pt-8 border-t border-outline-variant/15 flex flex-col items-center gap-4">
+                    <p class="text-sm text-on-surface-variant">Already have a research profile?</p>
+                    <a class="text-primary font-bold text-sm underline decoration-primary-container underline-offset-4 hover:text-on-surface transition-colors"
+                        href="#">Sign in to your dashboard</a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer
+        class="w-full border-t border-[#d2c5ab]/15 bg-[#f4f4f2] dark:bg-[#2f3130] flex flex-col md:flex-row justify-between items-center px-12 py-10">
+        <span class="font-['Public_Sans'] text-sm tracking-wide uppercase text-[#1a1c1b]/60 dark:text-[#f9f9f7]/60">©
+            2024 University Research Portal. All rights reserved.</span>
+        <div class="flex flex-wrap justify-center gap-8 mt-6 md:mt-0">
+            <a class="font-['Public_Sans'] text-sm tracking-wide uppercase text-[#1a1c1b]/60 dark:text-[#f9f9f7]/60 hover:text-[#755b00] dark:hover:text-[#ffc909] underline decoration-[#ffc909] opacity-100 transition-opacity"
+                href="#">About</a>
+            <a class="font-['Public_Sans'] text-sm tracking-wide uppercase text-[#1a1c1b]/60 dark:text-[#f9f9f7]/60 hover:text-[#755b00] dark:hover:text-[#ffc909] underline decoration-[#ffc909] opacity-100 transition-opacity"
+                href="#">Research Policy</a>
+            <a class="font-['Public_Sans'] text-sm tracking-wide uppercase text-[#1a1c1b]/60 dark:text-[#f9f9f7]/60 hover:text-[#755b00] dark:hover:text-[#ffc909] underline decoration-[#ffc909] opacity-100 transition-opacity"
+                href="#">Help</a>
+            <a class="font-['Public_Sans'] text-sm tracking-wide uppercase text-[#1a1c1b]/60 dark:text-[#f9f9f7]/60 hover:text-[#755b00] dark:hover:text-[#ffc909] underline decoration-[#ffc909] opacity-100 transition-opacity"
+                href="#">Privacy</a>
+            <a class="font-['Public_Sans'] text-sm tracking-wide uppercase text-[#1a1c1b]/60 dark:text-[#f9f9f7]/60 hover:text-[#755b00] dark:hover:text-[#ffc909] underline decoration-[#ffc909] opacity-100 transition-opacity"
+                href="#">Ethics</a>
+        </div>
+    </footer>
+</body>
+
+</html>
+
+<!-- Registration Screen -->
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Scholarly Authority - Faculty Portal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Public+Sans:wght@300;400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "inverse-primary": "#f4c000",
+                        "on-surface": "#1a1c1b",
+                        "surface-container-low": "#f4f4f2",
+                        "secondary-fixed-dim": "#c6c6c6",
+                        "on-background": "#1a1c1b",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2f3130",
+                        "surface-container": "#eeeeec",
+                        "on-tertiary-container": "#6f5500",
+                        "tertiary-fixed-dim": "#eec142",
+                        "primary-fixed": "#ffdf91",
+                        "primary-container": "#ffc909",
+                        "tertiary": "#765b00",
+                        "surface-dim": "#dadad8",
+                        "outline-variant": "#d2c5ab",
+                        "surface-bright": "#f9f9f7",
+                        "secondary-fixed": "#e2e2e2",
+                        "on-tertiary-fixed-variant": "#594400",
+                        "on-secondary-fixed-variant": "#474747",
+                        "outline": "#80765f",
+                        "secondary-container": "#e2e2e2",
+                        "surface-container-highest": "#e2e3e1",
+                        "background": "#f9f9f7",
+                        "on-secondary-fixed": "#1b1b1b",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#646464",
+                        "surface-variant": "#e2e3e1",
+                        "primary-fixed-dim": "#f4c000",
+                        "on-tertiary-fixed": "#241a00",
+                        "tertiary-fixed": "#ffdf94",
+                        "surface": "#f9f9f7",
+                        "on-primary-fixed-variant": "#594400",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#241a00",
+                        "on-primary-container": "#6e5500",
+                        "surface-container-high": "#e8e8e6",
+                        "secondary": "#5e5e5e",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#f9ca4b",
+                        "surface-tint": "#755b00",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "primary": "#755b00",
+                        "on-surface-variant": "#4e4632",
+                        "inverse-on-surface": "#f1f1ef"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Public Sans"],
+                        "label": ["Public Sans"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        body {
+            font-family: 'Public Sans', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+    <!-- Sidebar Navigation Shell -->
+    <aside
+        class="fixed left-0 top-0 h-full w-64 bg-[#f4f4f2] dark:bg-[#1a1c1b] flex flex-col h-full py-8 px-4 gap-4 z-40">
+        <div class="mb-8 px-4">
+            <div class="flex items-center gap-3 mb-2">
+                <img alt="University Crest" class="w-10 h-10 rounded-full bg-primary-container p-1"
+                    data-alt="Abstract geometric university crest logo with golden accents on a white background"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwuVljnIE6qtkldplWb_i8A2j3LESDv8m5gqIv6wUdfsWlgQQYQ0hPbZmzmimbXaNYb77XDaSpGuZo8WEULv3zUXAYgKjRVEofi2K3DHlThrQuKiiOMS-KBuOYwfM95PQ5aqYlZw-rNWAW9g2zdqt6JQAouRf-T5Dbl8PueMtIe9G5Es44tnVn2Qu2cgq7uA_z6mCweftXxXGB47IkSrfjzG9H58cd7n_B4uF9Dm_6eOqiUn7E62lkAkj5u2J_AldDlnUZXmvl2b8" />
+                <div class="flex flex-col">
+                    <span class="text-lg font-bold text-[#1a1c1b] dark:text-[#f9f9f7]">Faculty Portal</span>
+                    <span
+                        class="font-public-sans text-[10px] uppercase tracking-[0.1em] text-[#1a1c1b] opacity-60">Research
+                        Administration</span>
+                </div>
+            </div>
+        </div>
+        <nav class="flex flex-col gap-1">
+            <!-- Active: My Postings -->
+            <a class="bg-[#ffffff] dark:bg-[#2f3130] text-[#755b00] dark:text-[#ffc909] font-bold rounded-l-lg flex items-center gap-3 px-4 py-3 font-public-sans text-sm tracking-wide transition-all active:scale-95"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="description">description</span>
+                My Postings
+            </a>
+            <a class="text-[#1a1c1b] dark:text-[#f9f9f7] opacity-60 flex items-center gap-3 px-4 py-3 font-public-sans text-sm tracking-wide hover:bg-[#e2e3e1] dark:hover:bg-[#2f3130] transition-colors rounded-l-lg"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="rate_review">rate_review</span>
+                Review Applications
+            </a>
+            <a class="text-[#1a1c1b] dark:text-[#f9f9f7] opacity-60 flex items-center gap-3 px-4 py-3 font-public-sans text-sm tracking-wide hover:bg-[#e2e3e1] dark:hover:bg-[#2f3130] transition-colors rounded-l-lg"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+        </nav>
+        <div class="mt-auto px-2">
+            <button
+                class="w-full py-4 px-6 bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold rounded-md shadow-sm flex items-center justify-center gap-2 transition-transform hover:scale-[1.02] active:scale-95">
+                <span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                Create New Posting
+            </button>
+        </div>
+    </aside>
+    <!-- Main Canvas Area -->
+    <main class="ml-64 min-h-screen">
+        <!-- Top Bar Glassmorphism -->
+        <header
+            class="fixed top-0 right-0 left-64 h-16 bg-[#f9f9f7]/80 dark:bg-[#1a1c1b]/80 backdrop-blur-md z-30 flex justify-between items-center px-8 border-none">
+            <h1 class="font-manrope font-black text-xl text-[#1a1c1b] dark:text-[#f9f9f7] tracking-tight">Active
+                Research Postings</h1>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-4 text-on-surface-variant">
+                    <span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors"
+                        data-icon="notifications">notifications</span>
+                    <span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors"
+                        data-icon="help_outline">help_outline</span>
+                </div>
+                <div class="h-8 w-[1px] bg-outline-variant opacity-20"></div>
+                <div class="flex items-center gap-3 group cursor-pointer">
+                    <div class="text-right">
+                        <p class="text-sm font-bold leading-none">Dr. Alistair Thorne</p>
+                        <p class="text-[10px] font-label uppercase tracking-wider text-on-surface-variant opacity-70">
+                            Lead Researcher</p>
+                    </div>
+                    <img alt="Faculty profile avatar" class="w-10 h-10 rounded-full border-2 border-primary-container"
+                        data-alt="Sophisticated portrait of a male professor in professional attire with soft library background blur"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPRq9Te59csW_cgxEsF6Or8hW9Hrw_vCNf3YhQEFWeUTIlFw1xSQF1SXZkCnMajX8L0pstHqgyDv86laPbKv36f2XzUOUrmrLZcVzxwKS0vT0JahnBvnfzEUGy1ZoxZS3gBEQ591s8i4gLyGPIQMkgc8K5Oty08ZkrRjAhBF5VIqjE3AINaJdmrOPxdDyCuou8h2B3BOJ7Uhbkty0nN4hxR6VU1lPzSMmbCW7W5Pox9w4Ko8lxEFBeCCzXsPDWAOInPscWlrgk2N4" />
+                </div>
+            </div>
+        </header>
+        <!-- Content Content Container -->
+        <div class="pt-24 pb-12 px-12 max-w-6xl">
+            <!-- Summary Stats (Bento Minimal) -->
+            <div class="grid grid-cols-12 gap-6 mb-12">
+                <div
+                    class="col-span-8 bg-surface-container-low rounded-xl p-8 relative overflow-hidden flex flex-col justify-between h-48 group">
+                    <div class="relative z-10">
+                        <span class="text-xs font-label uppercase tracking-widest text-primary font-bold">Research
+                            Impact</span>
+                        <h2 class="text-3xl font-headline font-extrabold mt-2 tracking-tight">University of Scholarly
+                            Excellence</h2>
+                        <p class="text-on-surface-variant max-w-md mt-2 opacity-80 leading-relaxed">Managing
+                            institutional foundations for quantum and biological research trajectories.</p>
+                    </div>
+                    <div
+                        class="absolute -right-10 -bottom-10 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                        <span class="material-symbols-outlined text-[12rem]"
+                            data-icon="auto_awesome">auto_awesome</span>
+                    </div>
+                </div>
+                <div
+                    class="col-span-4 bg-primary-container/20 rounded-xl p-8 flex flex-col justify-between border-l-4 border-primary-container">
+                    <div>
+                        <span class="text-xs font-label uppercase tracking-widest text-primary font-bold">Total
+                            Active</span>
+                        <div class="text-5xl font-headline font-black mt-2">08</div>
+                    </div>
+                    <div class="flex items-center gap-2 text-primary font-bold text-sm">
+                        <span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+                        +12% from last term
+                    </div>
+                </div>
+            </div>
+            <!-- Main Listing -->
+            <div class="space-y-6">
+                <!-- Posting Item 1 -->
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-lg flex items-center justify-between group hover:shadow-[0_20px_40px_rgba(26,28,27,0.04)] transition-all border border-transparent hover:border-outline-variant/15">
+                    <div class="flex gap-6 items-center">
+                        <div
+                            class="w-14 h-14 bg-surface-container-high rounded-md flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined text-3xl" data-icon="layers">layers</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-headline font-bold text-on-surface tracking-tight">Quantum Computing
+                                Foundations</h3>
+                            <p class="text-sm text-on-surface-variant flex items-center gap-2 mt-1">
+                                <span class="material-symbols-outlined text-xs"
+                                    data-icon="calendar_today">calendar_today</span>
+                                Posted on Oct 14, 2023
+                                <span class="mx-2 opacity-30">•</span>
+                                <span class="material-symbols-outlined text-xs" data-icon="school">school</span>
+                                Physics &amp; CS
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-8">
+                        <div class="text-right">
+                            <div class="flex items-center gap-2 justify-end mb-1">
+                                <span
+                                    class="bg-primary text-on-primary text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-tighter">4
+                                    New</span>
+                                <span class="text-lg font-headline font-black text-on-surface">12</span>
+                            </div>
+                            <p
+                                class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant opacity-60">
+                                Total Applicants</p>
+                        </div>
+                        <button
+                            class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-surface-container-highest transition-colors">
+                            <span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Posting Item 2 -->
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-lg flex items-center justify-between group hover:shadow-[0_20px_40px_rgba(26,28,27,0.04)] transition-all border border-transparent hover:border-outline-variant/15">
+                    <div class="flex gap-6 items-center">
+                        <div
+                            class="w-14 h-14 bg-surface-container-high rounded-md flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined text-3xl" data-icon="psychology">psychology</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-headline font-bold text-on-surface tracking-tight">Neural Plasticity
+                                in Primates</h3>
+                            <p class="text-sm text-on-surface-variant flex items-center gap-2 mt-1">
+                                <span class="material-symbols-outlined text-xs"
+                                    data-icon="calendar_today">calendar_today</span>
+                                Posted on Oct 08, 2023
+                                <span class="mx-2 opacity-30">•</span>
+                                <span class="material-symbols-outlined text-xs" data-icon="school">school</span>
+                                Neuroscience
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-8">
+                        <div class="text-right">
+                            <div class="flex items-center gap-2 justify-end mb-1">
+                                <span class="text-lg font-headline font-black text-on-surface">24</span>
+                            </div>
+                            <p
+                                class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant opacity-60">
+                                Total Applicants</p>
+                        </div>
+                        <button
+                            class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-surface-container-highest transition-colors">
+                            <span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Posting Item 3 -->
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-lg flex items-center justify-between group hover:shadow-[0_20px_40px_rgba(26,28,27,0.04)] transition-all border border-transparent hover:border-outline-variant/15 opacity-70 hover:opacity-100">
+                    <div class="flex gap-6 items-center">
+                        <div
+                            class="w-14 h-14 bg-surface-container-high rounded-md flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined text-3xl" data-icon="biotech">biotech</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-headline font-bold text-on-surface tracking-tight">CRISPR Gene
+                                Editing for Crop Resilience</h3>
+                            <p class="text-sm text-on-surface-variant flex items-center gap-2 mt-1">
+                                <span class="material-symbols-outlined text-xs"
+                                    data-icon="calendar_today">calendar_today</span>
+                                Posted on Sep 22, 2023
+                                <span class="mx-2 opacity-30">•</span>
+                                <span class="material-symbols-outlined text-xs" data-icon="school">school</span>
+                                Agricultural Sciences
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-8">
+                        <div class="text-right">
+                            <div class="flex items-center gap-2 justify-end mb-1">
+                                <span class="text-lg font-headline font-black text-on-surface">06</span>
+                            </div>
+                            <p
+                                class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant opacity-60">
+                                Total Applicants</p>
+                        </div>
+                        <button
+                            class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-surface-container-highest transition-colors">
+                            <span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Create Posting Modal Overlay -->
+    <div class="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-on-surface/40 backdrop-blur-sm">
+        <div class="bg-surface w-full max-w-xl rounded-lg shadow-2xl overflow-hidden flex flex-col">
+            <!-- Modal Header -->
+            <div class="p-8 pb-4 flex justify-between items-start">
+                <div>
+                    <h2 class="text-2xl font-headline font-extrabold tracking-tight">Create New Posting</h2>
+                    <p class="text-on-surface-variant text-sm mt-1">Establish a new research mandate for university
+                        students.</p>
+                </div>
+                <button class="text-on-surface-variant hover:text-on-surface transition-colors">
+                    <span class="material-symbols-outlined" data-icon="close">close</span>
+                </button>
+            </div>
+            <!-- Modal Form -->
+            <div class="p-8 pt-4 space-y-6">
+                <!-- Project Title -->
+                <div class="space-y-1">
+                    <label class="text-[10px] font-label uppercase tracking-widest text-primary font-bold">Project
+                        Title</label>
+                    <input
+                        class="w-full bg-surface-container-low border-none focus:ring-0 focus:border-b-2 focus:border-primary-container p-4 text-on-surface font-medium placeholder:opacity-40 transition-all rounded-sm"
+                        placeholder="e.g. Advanced Synthetic Biology" type="text" />
+                </div>
+                <!-- Description -->
+                <div class="space-y-1">
+                    <label
+                        class="text-[10px] font-label uppercase tracking-widest text-primary font-bold">Description</label>
+                    <textarea
+                        class="w-full bg-surface-container-low border-none focus:ring-0 focus:border-b-2 focus:border-primary-container p-4 text-on-surface font-medium placeholder:opacity-40 transition-all rounded-sm resize-none"
+                        placeholder="Outline research objectives and researcher responsibilities..."
+                        rows="4"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- Required Major -->
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-label uppercase tracking-widest text-primary font-bold">Required
+                            Major</label>
+                        <select
+                            class="w-full bg-surface-container-low border-none focus:ring-0 focus:border-b-2 focus:border-primary-container p-4 text-on-surface font-medium transition-all rounded-sm appearance-none">
+                            <option>Computer Science</option>
+                            <option>Physics</option>
+                            <option>Neuroscience</option>
+                            <option>Biochemistry</option>
+                            <option>Economics</option>
+                        </select>
+                    </div>
+                    <!-- Capacity -->
+                    <div class="space-y-1">
+                        <label
+                            class="text-[10px] font-label uppercase tracking-widest text-primary font-bold">Capacity</label>
+                        <input
+                            class="w-full bg-surface-container-low border-none focus:ring-0 focus:border-b-2 focus:border-primary-container p-4 text-on-surface font-medium transition-all rounded-sm"
+                            type="number" value="2" />
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="p-8 pt-0 flex gap-4">
+                <button
+                    class="flex-1 py-4 text-sm font-bold bg-surface-container-highest text-primary rounded hover:bg-surface-container-high transition-colors">
+                    Discard Draft
+                </button>
+                <button
+                    class="flex-2 px-12 py-4 text-sm font-bold bg-gradient-to-br from-primary to-primary-container text-on-primary rounded shadow-lg transition-transform active:scale-95">
+                    Publish Posting
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Decorative Academic Background Texture -->
+    <div class="fixed inset-0 -z-10 pointer-events-none opacity-[0.03]">
+        <svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern height="40" id="grid" patternunits="userSpaceOnUse" width="40">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#755b00" stroke-width="0.5"></path>
+                </pattern>
+            </defs>
+            <rect fill="url(#grid)" height="100%" width="100%"></rect>
+        </svg>
+    </div>
+</body>
+
+</html>
+
+<!-- Design System -->
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Research Finder - Student Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#dadada",
+                        "on-background": "#1a1c1c",
+                        "on-tertiary-container": "#00626d",
+                        "on-tertiary-fixed-variant": "#004f58",
+                        "on-surface": "#1a1c1c",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#755b00",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-tertiary-fixed": "#001f24",
+                        "primary-fixed": "#ffdf91",
+                        "primary-fixed-dim": "#f3c000",
+                        "secondary-fixed": "#e2e2e2",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#594400",
+                        "on-secondary-fixed-variant": "#474747",
+                        "primary-container": "#ffc904",
+                        "tertiary": "#006874",
+                        "secondary-fixed-dim": "#c6c6c6",
+                        "tertiary-fixed": "#98f0ff",
+                        "on-primary-container": "#6e5500",
+                        "on-secondary-fixed": "#1b1b1b",
+                        "tertiary-container": "#00e5fd",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#eeeeee",
+                        "secondary-container": "#e2e2e2",
+                        "surface-container-high": "#e8e8e8",
+                        "on-secondary-container": "#646464",
+                        "inverse-primary": "#f3c000",
+                        "outline": "#80765f",
+                        "background": "#f9f9f9",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f1f1f1",
+                        "secondary": "#5e5e5e",
+                        "surface-container-low": "#f3f3f3",
+                        "on-primary-fixed": "#241a00",
+                        "on-surface-variant": "#4e4632",
+                        "on-error-container": "#93000a",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#2f3131",
+                        "outline-variant": "#d2c5ab",
+                        "primary": "#755b00",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e2e2e2",
+                        "surface-bright": "#f9f9f9",
+                        "surface": "#f9f9f9",
+                        "tertiary-fixed-dim": "#00daf1"
+                    },
+                    fontFamily: {
+                        "headline": ["Noto Serif", "serif"],
+                        "body": ["Manrope", "sans-serif"],
+                        "label": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: #1a1c1c;
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-surface">
+    <!-- Top Navigation Bar -->
+    <nav
+        class="fixed top-0 w-full z-50 bg-stone-50/80 dark:bg-stone-900/80 backdrop-blur-xl shadow-sm shadow-stone-900/5 flex justify-between items-center px-8 h-16">
+        <div class="flex items-center gap-12 flex-1">
+            <span class="text-xl font-serif italic text-stone-900 dark:text-stone-100 shrink-0">Research Finder</span>
+            <div class="relative w-full max-w-md hidden md:block">
+                <span
+                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+                <input
+                    class="w-full bg-surface-container-low border-none border-b border-outline focus:border-primary focus:ring-0 font-headline italic py-2 pl-10 text-sm"
+                    placeholder="Inquire for opportunities..." type="text" />
+            </div>
+        </div>
+        <div class="flex items-center gap-8">
+            <div class="hidden lg:flex items-center gap-6">
+                <a class="font-serif text-amber-700 dark:text-amber-500 border-b-2 border-amber-600 pb-1 text-sm tracking-wide"
+                    href="#">Explore</a>
+                <a class="font-serif text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200 transition-colors text-sm tracking-wide"
+                    href="#">My Applications</a>
+                <a class="font-serif text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200 transition-colors text-sm tracking-wide"
+                    href="#">Submissions</a>
+            </div>
+            <div class="flex items-center gap-4 border-l border-outline-variant/20 pl-8">
+                <button
+                    class="material-symbols-outlined text-on-surface hover:bg-stone-200/50 p-2 rounded-full transition-colors">notifications</button>
+                <div class="h-8 w-8 rounded-full overflow-hidden border border-primary/20">
+                    <img alt="User Profile"
+                        data-alt="close-up portrait of a professional woman with a friendly expression in a brightly lit academic setting"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWhN1nJVxgGWp1dUJsK4JFM4AqFdumQSR8xFOBryXTWCb1dc9mE4jUdXtyYw0TL_SnHyFTyBPHpvu6o0w-GfzhFQ_5vYqL9ZyBA-z0IEg5gon9OfuMmAGyapnJ-REPvcGO-Wk_I6q_F7Nlce3GqdnCxn8gRnlJTvhejWwPcZvQsSVtytWwTk90Pq2WRVbrRSbcMSaJn7TWOyWUGrQYur-xywTEZ0JNfuxeWrJLAeY2HOgr1EmfiRcVG6qOxcZq1PVJa9XNox3QKBI" />
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="flex pt-16">
+        <!-- Side Navigation Bar -->
+        <aside
+            class="h-screen w-64 pt-8 bg-stone-100 dark:bg-stone-950 fixed left-0 top-16 flex flex-col gap-4 p-6 overflow-y-auto">
+            <div class="mb-6">
+                <h2 class="font-headline text-lg font-bold text-on-surface">Filters</h2>
+                <p class="font-body text-xs text-secondary">Refine your inquiry</p>
+            </div>
+            <div class="space-y-2">
+                <!-- Filter Group: College -->
+                <button
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold border-r-4 border-amber-600 transition-transform duration-200">
+                    <span class="material-symbols-outlined">school</span>
+                    <span class="font-label text-sm tracking-wide">College</span>
+                </button>
+                <!-- Filter Group: Department -->
+                <button
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded text-stone-500 dark:text-stone-500 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-transform duration-200">
+                    <span class="material-symbols-outlined">domain</span>
+                    <span class="font-label text-sm tracking-wide">Department</span>
+                </button>
+                <!-- Filter Group: Major -->
+                <button
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded text-stone-500 dark:text-stone-500 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-transform duration-200">
+                    <span class="material-symbols-outlined">psychology</span>
+                    <span class="font-label text-sm tracking-wide">Major</span>
+                </button>
+            </div>
+            <div class="mt-auto pb-20">
+                <button
+                    class="w-full text-left font-label text-xs uppercase tracking-widest text-primary font-bold hover:underline">
+                    Clear All Filters
+                </button>
+            </div>
+        </aside>
+        <!-- Main Content Canvas -->
+        <main class="flex-1 ml-64 p-12 bg-surface">
+            <!-- Header Section -->
+            <header class="mb-12 flex justify-between items-end">
+                <div>
+                    <h1 class="font-headline text-5xl font-bold text-on-surface mb-2">Academic Inquiry</h1>
+                    <p class="font-body text-secondary max-w-xl italic">Curated research opportunities across the
+                        biological, social, and physical sciences.</p>
+                </div>
+                <div class="flex gap-4">
+                    <span
+                        class="font-label text-xs uppercase tracking-tighter text-on-surface-variant self-end mb-1">Showing
+                        14 Opportunities</span>
+                </div>
+            </header>
+            <!-- Bento-Inspired Grid Layout -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <!-- Large Highlighted Card -->
+                <article
+                    class="xl:col-span-2 group bg-surface-container-lowest p-8 flex flex-col md:flex-row gap-8 transition-all hover:bg-surface-container-low hover:translate-x-1">
+                    <div class="w-full md:w-1/3 aspect-[4/5] bg-surface-container overflow-hidden">
+                        <img alt="Research Lab"
+                            class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                            data-alt="microscopic view of biological cells illuminated with fluorescent dyes in a modern high-end research laboratory"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUuKlVgbHtq-LCl6Cul2mHZluWyY7614bK_Zio6SkcUmFzNEoV6q7wW2JdhjdYKGZbWP-VHf6LSt7byfyuGL2mTPvfOqfFXoM6IoC3mpWWTQDQ_Zc3MbJQOkCKfUAmrnORKZcpirnOuKkm71Wj2eqDx1nPRPYpWmDPOq3gC2jzZ9azOST8YfO_td6gK1YyBGZTp6fyBAwB8HXuY47cCEBPV7qMU7F-aNExZh0FvBr2NbkP5CBgxaPCEGGlrH_HhtbogpI4j9MsHbQ" />
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <div class="flex justify-between items-start mb-4">
+                            <span
+                                class="font-label text-[10px] uppercase tracking-widest text-primary font-bold">Featured
+                                Project</span>
+                            <span class="material-symbols-outlined text-outline-variant text-sm"
+                                style="font-variation-settings: 'FILL' 1;">bookmark</span>
+                        </div>
+                        <h3 class="font-headline text-3xl font-bold text-on-surface mb-4 leading-tight">Neural
+                            Plasticity in Post-Quantum Computing Models</h3>
+                        <p class="font-body text-secondary text-sm mb-6 leading-relaxed">Investigating the bridge
+                            between biological neural networks and quantum algorithmic structures. Requires high
+                            proficiency in Linear Algebra and Python.</p>
+                        <div class="mt-auto space-y-4">
+                            <div class="flex items-center gap-3">
+                                <div class="h-6 w-6 rounded-full bg-surface-container-highest"></div>
+                                <span class="font-body text-sm font-semibold">Dr. Elena Sterling</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span
+                                    class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase">Neuroscience</span>
+                                <span
+                                    class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase">Quantum
+                                    Physics</span>
+                            </div>
+                            <div class="pt-6 flex items-center justify-between">
+                                <span class="font-label text-xs text-primary font-bold">MAJOR: COGNITIVE SCIENCE</span>
+                                <button
+                                    class="bg-primary-container text-on-primary-fixed px-6 py-2.5 rounded-md font-body font-bold text-sm hover:brightness-105 active:scale-95 transition-all">Apply
+                                    Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                <!-- Side Card 1 -->
+                <article
+                    class="bg-surface-container-lowest p-6 flex flex-col transition-all hover:bg-surface-container-low hover:translate-x-1">
+                    <div class="mb-4">
+                        <span class="font-label text-[10px] uppercase tracking-widest text-secondary font-bold">Open
+                            Position</span>
+                    </div>
+                    <h3 class="font-headline text-xl font-bold text-on-surface mb-3">Sociology of Digital Nomads</h3>
+                    <p class="font-body text-secondary text-xs mb-6 italic">A longitudinal study on the impact of remote
+                        work on urban infrastructure and community cohesion.</p>
+                    <div class="mt-auto space-y-4">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg text-outline-variant">person</span>
+                            <span class="font-body text-xs font-semibold">Prof. Julian Vane</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span
+                                class="px-2 py-0.5 bg-secondary-container text-on-secondary-container rounded-full text-[9px] font-bold uppercase tracking-tighter">Urban
+                                Studies</span>
+                        </div>
+                        <div class="pt-4 border-t border-outline-variant/10">
+                            <div class="flex items-center justify-between">
+                                <span class="font-label text-[10px] text-on-surface-variant font-bold">MAJOR:
+                                    SOCIOLOGY</span>
+                                <button class="italic font-headline text-primary text-sm hover:underline">View
+                                    Details</button>
+                            </div>
+                            <button
+                                class="w-full mt-4 bg-primary-container text-on-primary-fixed py-2 rounded-md font-body font-bold text-sm">Apply
+                                Now</button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Side Card 2 -->
+                <article
+                    class="bg-surface-container-lowest p-6 flex flex-col transition-all hover:bg-surface-container-low hover:translate-x-1">
+                    <div class="mb-4">
+                        <span class="font-label text-[10px] uppercase tracking-widest text-secondary font-bold">Open
+                            Position</span>
+                    </div>
+                    <h3 class="font-headline text-xl font-bold text-on-surface mb-3">Thermodynamics of Rare Isotopes
+                    </h3>
+                    <p class="font-body text-secondary text-xs mb-6 italic">Laboratory-based research involving isotope
+                        separation and high-precision heat measurement.</p>
+                    <div class="mt-auto space-y-4">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg text-outline-variant">person</span>
+                            <span class="font-body text-xs font-semibold">Dr. Marcus Thorne</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span
+                                class="px-2 py-0.5 bg-secondary-container text-on-secondary-container rounded-full text-[9px] font-bold uppercase tracking-tighter">Nuclear
+                                Physics</span>
+                        </div>
+                        <div class="pt-4 border-t border-outline-variant/10">
+                            <div class="flex items-center justify-between">
+                                <span class="font-label text-[10px] text-on-surface-variant font-bold">MAJOR:
+                                    PHYSICS</span>
+                                <button class="italic font-headline text-primary text-sm hover:underline">View
+                                    Details</button>
+                            </div>
+                            <button
+                                class="w-full mt-4 bg-primary-container text-on-primary-fixed py-2 rounded-md font-body font-bold text-sm">Apply
+                                Now</button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Regular Grid Items -->
+                <article
+                    class="bg-surface-container-lowest p-6 flex flex-col transition-all hover:bg-surface-container-low hover:translate-x-1">
+                    <h3 class="font-headline text-xl font-bold text-on-surface mb-3">Medieval Manuscripts Digitization
+                    </h3>
+                    <p class="font-body text-secondary text-xs mb-6">Processing high-resolution scans and cataloging
+                        marginalia in 14th-century texts.</p>
+                    <div class="mt-auto flex flex-col gap-4">
+                        <span class="font-body text-xs font-semibold text-secondary">Prof. Alistair Cook</span>
+                        <div class="flex items-center justify-between">
+                            <span class="font-label text-[10px] text-primary font-bold">MAJOR: HISTORY</span>
+                            <button
+                                class="bg-primary-container text-on-primary-fixed px-4 py-1.5 rounded-md font-body font-bold text-xs">Apply
+                                Now</button>
+                        </div>
+                    </div>
+                </article>
+                <article
+                    class="bg-surface-container-lowest p-6 flex flex-col transition-all hover:bg-surface-container-low hover:translate-x-1">
+                    <h3 class="font-headline text-xl font-bold text-on-surface mb-3">Eco-Architecture in Arid Climates
+                    </h3>
+                    <p class="font-body text-secondary text-xs mb-6">Assisting in the design of self-cooling residential
+                        modules for desert environments.</p>
+                    <div class="mt-auto flex flex-col gap-4">
+                        <span class="font-body text-xs font-semibold text-secondary">Dr. Sarah Myer</span>
+                        <div class="flex items-center justify-between">
+                            <span class="font-label text-[10px] text-primary font-bold">MAJOR: ARCHITECTURE</span>
+                            <button
+                                class="bg-primary-container text-on-primary-fixed px-4 py-1.5 rounded-md font-body font-bold text-xs">Apply
+                                Now</button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            <!-- Pagination or "Load More" -->
+            <footer class="mt-16 flex justify-center">
+                <button class="group flex flex-col items-center gap-2">
+                    <span
+                        class="font-headline italic text-on-surface-variant group-hover:text-primary transition-colors">Show
+                        more opportunities</span>
+                    <span class="material-symbols-outlined text-primary-container animate-bounce">expand_more</span>
+                </button>
+            </footer>
+        </main>
+    </div>
+    <!-- Background Layering -->
+    <div class="fixed inset-0 pointer-events-none z-[-1] bg-surface"></div>
+    <div class="fixed top-0 left-0 h-full w-[25vw] bg-stone-100/30 z-[-1]"></div>
+</body>
+
+</html>

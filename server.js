@@ -1,17 +1,30 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 
-const MongoClient = require('mongodb').MongoClient;
-const url = 'mongodb+srv://TheBeast:lxKpzZrrsfs3CzKu@researchportal.lvzvius.mongodb.net/?appName=ResearchPortal';
+const { MongoClient, ObjectId } = require('mongodb');
+const url = process.env.MONGODB_URI;
 
 const client = new MongoClient(url);
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
 var cardList = 
 [
@@ -168,18 +181,27 @@ app.post('/api/login', async (req, res, next) =>
   const db = client.db('researchportal');
 
   // Check students table first
-  const studentResults = await db.collection('students').find({username:login,password:password}).toArray();
+  const studentResults = await db.collection('students').find({username:login}).toArray();
 
   if( studentResults.length > 0 )
   {
+    const user = studentResults[0];
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(200).json({ user: null, userType: null, token: null, error: 'Invalid credentials' });
+    }
+    if (user.isVerified === false) {
+      return res.status(403).json({ error: 'Please verify your email before logging in.' });
+    }
+
     const token = jwt.sign(
-      { username: studentResults[0].username, userType: 'student' },
+      { username: user.username, userType: 'student' },
       JWT_SECRET,
       { expiresIn: '30m' }
     );
     
     var ret = { 
-      user: studentResults[0],
+      user: user,
       userType: 'student',
       token: token,
       error: error
@@ -188,18 +210,27 @@ app.post('/api/login', async (req, res, next) =>
   }
 
   // Check faculty table if student not found
-  const facultyResults = await db.collection('faculty').find({username:login,password:password}).toArray();
+  const facultyResults = await db.collection('faculty').find({username:login}).toArray();
 
   if( facultyResults.length > 0 )
   {
+    const user = facultyResults[0];
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(200).json({ user: null, userType: null, token: null, error: 'Invalid credentials' });
+    }
+    if (user.isVerified === false) {
+      return res.status(403).json({ error: 'Please verify your email before logging in.' });
+    }
+
     const token = jwt.sign(
-      { username: facultyResults[0].username, userType: 'faculty' },
+      { username: user.username, userType: 'faculty' },
       JWT_SECRET,
       { expiresIn: '30m' }
     );
     
     var ret = { 
-      user: facultyResults[0],
+      user: user,
       userType: 'faculty',
       token: token,
       error: error
@@ -212,7 +243,7 @@ app.post('/api/login', async (req, res, next) =>
     user: null,
     userType: null,
     token: null,
-    error: error
+    error: 'Invalid credentials'
   };
   res.status(200).json(ret);
 });
@@ -223,17 +254,6 @@ app.post('/api/signup/student', async (req, res, next) => {
   // outgoing: error
 
   const { firstName, lastName, login, password, ucfEmail, major, college } = req.body;
-
-  // Create a new student object with all database fields
-  const newStudent = {
-    firstName: firstName,
-    lastName: lastName,
-    username: login,
-    password: password,
-    ucfEmail: ucfEmail,
-    major: major,
-    college: college
-  };
 
   var error = '';
 
@@ -247,7 +267,32 @@ app.post('/api/signup/student', async (req, res, next) => {
     if (existingStudent.length > 0 || existingFaculty.length > 0) {
       error = "User already exists";
     } else {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+
+      // Create a new student object with all database fields
+      const newStudent = {
+        firstName: firstName,
+        lastName: lastName,
+        username: login,
+        password: hashedPassword,
+        ucfEmail: ucfEmail,
+        major: major,
+        college: college,
+        isVerified: false,
+        verificationToken: verificationToken,
+        verificationTokenExpiry: Date.now() + 86400000
+      };
+
       await db.collection('students').insertOne(newStudent);
+
+      const verifyLink = `${process.env.BASE_URL}/api/verify-email?token=${verificationToken}`;
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: ucfEmail,
+        subject: 'Verify your email',
+        html: `<p>Please verify your email clicking <a href="${verifyLink}">here</a>.</p>`
+      });
     }
   } catch (e) {
     error = e.toString();
@@ -263,17 +308,6 @@ app.post('/api/signup/faculty', async (req, res, next) => {
 
   const { firstName, lastName, login, password, email, role, department } = req.body;
 
-  // Create a new faculty object with all database fields
-  const newFaculty = {
-    firstName: firstName,
-    lastName: lastName,
-    username: login,
-    password: password,
-    email: email,
-    role: role,
-    department: department
-  };
-
   var error = '';
 
   try {
@@ -286,7 +320,32 @@ app.post('/api/signup/faculty', async (req, res, next) => {
     if (existingStudent.length > 0 || existingFaculty.length > 0) {
       error = "User already exists";
     } else {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+
+      // Create a new faculty object with all database fields
+      const newFaculty = {
+        firstName: firstName,
+        lastName: lastName,
+        username: login,
+        password: hashedPassword,
+        email: email,
+        role: role,
+        department: department,
+        isVerified: false,
+        verificationToken: verificationToken,
+        verificationTokenExpiry: Date.now() + 86400000
+      };
+
       await db.collection('faculty').insertOne(newFaculty);
+
+      const verifyLink = `${process.env.BASE_URL}/api/verify-email?token=${verificationToken}`;
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Verify your email',
+        html: `<p>Please verify your email clicking <a href="${verifyLink}">here</a>.</p>`
+      });
     }
   } catch (e) {
     error = e.toString();
@@ -410,6 +469,210 @@ app.delete('/api/delete/faculty', verifyToken, async (req, res, next) => {
 
   var ret = { error: error, token: req.newToken };
   res.status(200).json(ret);
+});
+
+app.get('/api/verify-email', async (req, res) => {
+  const token = req.query.token;
+  if (!token) return res.status(400).send('Token is missing');
+
+  try {
+    const db = client.db('researchportal');
+    
+    const student = await db.collection('students').findOne({ 
+      verificationToken: token, 
+      verificationTokenExpiry: { $gt: Date.now() } 
+    });
+    
+    if (student) {
+      await db.collection('students').updateOne(
+        { _id: student._id },
+        { 
+          $set: { isVerified: true }, 
+          $unset: { verificationToken: "", verificationTokenExpiry: "" } 
+        }
+      );
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/?verified=true`);
+    }
+
+    const faculty = await db.collection('faculty').findOne({ 
+      verificationToken: token, 
+      verificationTokenExpiry: { $gt: Date.now() } 
+    });
+
+    if (faculty) {
+      await db.collection('faculty').updateOne(
+        { _id: faculty._id },
+        { 
+          $set: { isVerified: true }, 
+          $unset: { verificationToken: "", verificationTokenExpiry: "" } 
+        }
+      );
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/?verified=true`);
+    }
+
+    res.status(400).send('Invalid or expired token');
+  } catch (e) {
+    res.status(500).send(e.toString());
+  }
+});
+
+app.post('/api/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  
+  try {
+    const db = client.db('researchportal');
+    const student = await db.collection('students').findOne({ ucfEmail: email });
+    const faculty = (!student) ? await db.collection('faculty').findOne({ email: email }) : null;
+
+    const user = student || faculty;
+    const collectionName = student ? 'students' : 'faculty';
+
+    if (user) {
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const resetTokenExpiry = Date.now() + 3600000; // 1 hour
+
+      await db.collection(collectionName).updateOne(
+        { _id: user._id },
+        { $set: { resetToken, resetTokenExpiry } }
+      );
+
+      const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Password Reset',
+        html: `<p>You requested a password reset. Click <a href="${resetLink}">here</a> to reset your password.</p>`
+      });
+    }
+
+    // Always return 200
+    res.status(200).json({ message: 'If that email exists, a reset link has been sent.' });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
+app.post('/api/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+  
+  try {
+    const db = client.db('researchportal');
+    const student = await db.collection('students').findOne({ 
+      resetToken: token, 
+      resetTokenExpiry: { $gt: Date.now() } 
+    });
+    
+    const faculty = (!student) ? await db.collection('faculty').findOne({ 
+      resetToken: token, 
+      resetTokenExpiry: { $gt: Date.now() } 
+    }) : null;
+
+    const user = student || faculty;
+    const collectionName = student ? 'students' : 'faculty';
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.collection(collectionName).updateOne(
+      { _id: user._id },
+      { 
+        $set: { password: hashedPassword },
+        $unset: { resetToken: "", resetTokenExpiry: "" }
+      }
+    );
+
+    res.status(200).json({ message: 'Password has been reset successfully' });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
+app.get('/api/search', async (req, res) => {
+  try {
+    const { q, major, department } = req.query;
+    const db = client.db('researchportal');
+    const filter = {};
+
+    if (q) {
+      filter.$or = [
+        { title: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } }
+      ];
+    }
+    if (major) filter.requiredMajor = { $regex: major, $options: 'i' };
+    if (department) filter.department = { $regex: department, $options: 'i' };
+
+    const postings = await db.collection('postings').find(filter).sort({ createdAt: -1 }).toArray();
+    res.status(200).json({ postings });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
+app.post('/api/postings', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'faculty') {
+    return res.status(403).json({ error: 'Only faculty can create postings' });
+  }
+
+  const { title, description, requiredMajor, capacity, department } = req.body;
+
+  const newPosting = {
+    title,
+    description,
+    requiredMajor,
+    capacity,
+    department,
+    facultyUsername: req.user.username,
+    createdAt: new Date(),
+    applicantCount: 0
+  };
+
+  try {
+    const db = client.db('researchportal');
+    await db.collection('postings').insertOne(newPosting);
+    res.status(200).json({ posting: newPosting, token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
+app.get('/api/postings/mine', verifyToken, async (req, res) => {
+  try {
+    const db = client.db('researchportal');
+    const postings = await db.collection('postings')
+      .find({ facultyUsername: req.user.username })
+      .sort({ createdAt: -1 })
+      .toArray();
+      
+    res.status(200).json({ postings, token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
+app.delete('/api/postings/:id', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'faculty') {
+    return res.status(403).json({ error: 'Only faculty can delete postings' });
+  }
+
+  try {
+    const db = client.db('researchportal');
+    const result = await db.collection('postings').deleteOne({ 
+      _id: new ObjectId(req.params.id), 
+      facultyUsername: req.user.username 
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Posting not found or unauthorized' });
+    }
+
+    res.status(200).json({ token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
 });
 
 async function start() {

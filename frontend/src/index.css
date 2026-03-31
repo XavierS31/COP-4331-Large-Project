@@ -1,68 +1,107 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* ============================================================
+   1. EXTERNAL @import STATEMENTS MUST BE FIRST
+      Google Fonts URL imports must precede @import "tailwindcss"
+      because Tailwind v4 expands to @layer declarations, and
+      PostCSS forbids any @import after a @layer statement.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Public+Sans:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+/* ============================================================
+   2. TAILWIND v4 ENTRY POINT
+   ============================================================ */
+@import "tailwindcss";
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ============================================================
+   3. DARK MODE — class-based strategy (mirrors the old v3 config)
+   ============================================================ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   4. DESIGN SYSTEM TOKENS — @theme block (Tailwind v4 standard)
+      In v4, custom tokens are declared here as CSS variables.
+      --color-*    maps to bg-*, text-*, border-*, etc.
+      --font-*     maps to font-* utilities
+      --radius-*   maps to rounded-* utilities
+      This replaces tailwind.config.ts entirely.
+   ============================================================ */
+@theme {
+  /* --- Colors --- */
+  --color-on-secondary:                #ffffff;
+  --color-surface-container-lowest:    #ffffff;
+  --color-inverse-surface:             #2f3130;
+  --color-primary-fixed-dim:           #f4c000;
+  --color-on-tertiary-container:       #6f5500;
+  --color-secondary-fixed-dim:         #c6c6c6;
+  --color-on-primary-fixed-variant:    #594400;
+  --color-surface-tint:                #755b00;
+  --color-secondary:                   #5e5e5e;
+  --color-error:                       #ba1a1a;
+  --color-on-background:               #1a1c1b;
+  --color-tertiary-fixed-dim:          #eec142;
+  --color-surface-dim:                 #dadad8;
+  --color-on-primary-container:        #6e5500;
+  --color-background:                  #f9f9f7;
+  --color-surface-container:           #eeeeec;
+  --color-primary-fixed:               #ffdf91;
+  --color-on-surface:                  #1a1c1b;
+  --color-on-tertiary-fixed:           #241a00;
+  --color-error-container:             #ffdad6;
+  --color-surface-container-low:       #f4f4f2;
+  --color-on-secondary-fixed-variant:  #474747;
+  --color-outline-variant:             #d2c5ab;
+  --color-primary-container:           #ffc909;
+  --color-on-surface-variant:          #4e4632;
+  --color-surface-container-highest:   #e2e3e1;
+  --color-on-error-container:          #93000a;
+  --color-surface:                     #f9f9f7;
+  --color-on-tertiary:                 #ffffff;
+  --color-on-error:                    #ffffff;
+  --color-on-primary-fixed:            #241a00;
+  --color-secondary-fixed:             #e2e2e2;
+  --color-surface-variant:             #e2e3e1;
+  --color-outline:                     #80765f;
+  --color-inverse-primary:             #f4c000;
+  --color-surface-container-high:      #e8e8e6;
+  --color-tertiary:                    #765b00;
+  --color-primary:                     #755b00;
+  --color-on-secondary-fixed:          #1b1b1b;
+  --color-tertiary-container:          #f9ca4b;
+  --color-secondary-container:         #e2e2e2;
+  --color-tertiary-fixed:              #ffdf94;
+  --color-on-secondary-container:      #646464;
+  --color-inverse-on-surface:          #f1f1ef;
+  --color-surface-bright:              #f9f9f7;
+  --color-on-tertiary-fixed-variant:   #594400;
+  --color-on-primary:                  #ffffff;
+
+  /* --- Font Families --- */
+  --font-headline: "Manrope", sans-serif;
+  --font-body:     "Public Sans", sans-serif;
+  --font-label:    "Public Sans", sans-serif;
+
+  /* --- Border Radius --- */
+  /* --radius    → rounded         (DEFAULT in v3 config) */
+  /* --radius-lg → rounded-lg                             */
+  /* --radius-xl → rounded-xl                             */
+  /* --radius-full → rounded-full                         */
+  --radius:      0.125rem;
+  --radius-lg:   0.25rem;
+  --radius-xl:   0.5rem;
+  --radius-full: 0.75rem;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+/* ============================================================
+   5. GLOBAL COMPONENT CLASSES
+   ============================================================ */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+.academic-gradient {
+  background: linear-gradient(135deg, #1a1c1b 0%, #2f3130 100%);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.gold-gradient-btn {
+  background: linear-gradient(135deg, #755b00 0%, #ffc909 100%);
 }
