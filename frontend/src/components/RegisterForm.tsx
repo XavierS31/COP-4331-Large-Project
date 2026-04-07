@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import PageTitle from './PageTitle';
 
 // Step 1: Define your domain name 
 const app_name = 'cop4331-11-domain.xyz';
@@ -87,6 +88,9 @@ export const RegisterForm: React.FC = () => {
   return (
     <section className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-24 bg-surface">
       <div className="w-full max-w-md">
+        <div className="mb-8 flex justify-center md:justify-start">
+          <PageTitle />
+        </div>
         <div className="mb-10">
           <span className="font-label text-xs font-bold tracking-[0.2em] text-primary uppercase mb-2 block">Institutional Access</span>
           <h2 className="font-headline text-3xl font-extrabold text-on-surface tracking-tight">Create your account</h2>
