@@ -48,6 +48,7 @@ const verifyToken = (req, res, next) => {
 // --- AUTH ROUTES ---
 
 app.post('/api/login', async (req, res) => {
+  console.log('[LOGIN] req.body received:', JSON.stringify(req.body));
   const { login, password } = req.body;
   const db = client.db('researchportal');
 
@@ -56,8 +57,15 @@ app.post('/api/login', async (req, res) => {
   const user = student || faculty;
   const type = student ? 'student' : 'faculty';
 
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(200).json({ user: null, error: 'Invalid credentials' });
+  if (!user) {
+    console.log(`[LOGIN] No user found for username: "${login}"`);
+    return res.status(200).json({ user: null, error: 'User not found in database' });
+  }
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  console.log(`[LOGIN] bcrypt.compare result for "${login}": ${passwordMatch}`);
+  if (!passwordMatch) {
+    return res.status(200).json({ user: null, error: 'Incorrect password' });
   }
 
   if (!user.isVerified) {
@@ -344,27 +352,7 @@ app.post('/api/reset-password', async (req, res) => {
   }
 });
 
-app.get('/api/search', async (req, res) => {
-  try {
-    const { q, major, department } = req.query;
-    const db = client.db('researchportal');
-    const filter = {};
 
-    if (q) {
-      filter.$or = [
-        { title: { $regex: q, $options: 'i' } },
-        { description: { $regex: q, $options: 'i' } }
-      ];
-    }
-    if (major) filter.requiredMajor = { $regex: major, $options: 'i' };
-    if (department) filter.department = { $regex: department, $options: 'i' };
-
-    const postings = await db.collection('postings').find(filter).sort({ createdAt: -1 }).toArray();
-    res.status(200).json({ postings });
-  } catch (e) {
-    res.status(500).json({ error: e.toString() });
-  }
-});
 
 app.post('/api/postings', verifyToken, async (req, res) => {
   if (req.user.userType !== 'faculty') {
@@ -429,62 +417,7 @@ app.delete('/api/postings/:id', verifyToken, async (req, res) => {
   }
 });
 
-app.post('/api/research/create', verifyToken, async (req, res, next) => {
-  // incoming: title, description, college, isopen (optional: postedAt)
-  // outgoing: error, research post object, newToken
 
-  // Only allow faculty to create research posts
-  if (req.user.userType !== 'faculty') {
-    return res.status(403).json({ error: 'Only faculty can create research posts', token: req.newToken });
-  }
-
-  const { title, description, college, isopen } = req.body;
-  const postedAt = req.body.postedAt || new Date().toISOString().split('T')[0];
-
-  var error = '';
-
-  // Validate required fields
-  if (!title || !description || !college) {
-    error = "Title, description, and college are required";
-    return res.status(200).json({ error: error, token: req.newToken });
-  }
-
-  try {
-    const db = client.db('researchportal');
-
-    // Get faculty member's _id
-    const faculty = await db.collection('faculty').findOne({ username: req.user.username });
-
-    if (!faculty) {
-      error = "Faculty not found";
-      return res.status(200).json({ error: error, token: req.newToken });
-    }
-
-    // Create new research post linked to faculty's _id
-    const newResearchPost = {
-      facultyId: faculty._id,
-      title: title,
-      description: description,
-      college: college,
-      isOpen: isopen !== undefined ? isopen : true,
-      postedAt: postedAt
-    };
-
-    const result = await db.collection('research').insertOne(newResearchPost);
-
-    var ret = {
-      error: error,
-      researchPost: newResearchPost,
-      postId: result.insertedId,
-      token: req.newToken
-    };
-    res.status(200).json(ret);
-  } catch (e) {
-    error = e.toString();
-    var ret = { error: error, token: req.newToken };
-    res.status(200).json(ret);
-  }
-});
 
 app.post('/api/applications/create', verifyToken, async (req, res, next) => {
   // incoming: researchId, statement (optional: status, appliedAt)
@@ -520,10 +453,10 @@ app.post('/api/applications/create', verifyToken, async (req, res, next) => {
     }
 
     // Verify research post exists
-    const research = await db.collection('research').findOne({ _id: new ObjectId(researchId) });
+    const research = await db.collection('postings').findOne({ _id: new ObjectId(researchId) });
 
     if (!research) {
-      error = "Research post not found";
+      error = "Posting not found";
       return res.status(200).json({ error: error, token: req.newToken });
     }
 

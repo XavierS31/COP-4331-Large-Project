@@ -31,6 +31,13 @@ class _LoginScreenState extends State<LoginScreen> {
           ? '/faculty-dashboard'
           : '/student-dashboard';
       Navigator.pushReplacementNamed(context, route);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.errorMessage ?? 'Login failed.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     }
   }
 

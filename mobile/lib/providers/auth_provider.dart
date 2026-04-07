@@ -60,6 +60,9 @@ class AuthProvider extends ChangeNotifier {
         body: jsonEncode({'login': login, 'password': password}),
       );
 
+      debugPrint('[AUTH] HTTP status: ${response.statusCode}');
+      debugPrint('[AUTH] HTTP body: ${response.body}');
+
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 403) {
@@ -69,8 +72,9 @@ class AuthProvider extends ChangeNotifier {
         return false;
       }
 
-      if (data['token'] == null || data['error'] != '') {
-        _errorMessage = data['error'] ?? 'Login failed.';
+      final error = data['error'];
+      if (data['token'] == null || (error != null && error.toString().isNotEmpty)) {
+        _errorMessage = error?.toString() ?? 'Login failed.';
         _isLoading = false;
         notifyListeners();
         return false;
