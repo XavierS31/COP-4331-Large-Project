@@ -1,0 +1,4 @@
+﻿Analyzing lib...                                                
+
+   info - Unnecessary use of multiple underscores - lib\screens\student_dashboard_screen.dart:270:53 - unnecessary_underscores
+
