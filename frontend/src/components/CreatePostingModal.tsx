@@ -2,6 +2,19 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
+// Step 1: Define the domain for your production environment
+const app_name = 'cop4331-11-domain.xyz';
+
+// Step 2: Add the buildPath function to toggle between localhost and the droplet
+function buildPath(route: string): string {
+  // Checks if the application is running in Vite's development mode
+  if (import.meta.env.MODE !== 'development') {
+    return 'http://' + app_name + ':5000/' + route; // Production path
+  } else {
+    return 'http://localhost:5000/' + route; // Development path
+  }
+}
+
 interface CreatePostingModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -24,7 +37,8 @@ export const CreatePostingModal: React.FC<CreatePostingModalProps> = ({ isOpen, 
     }
     
     try {
-      const response = await fetch('http://localhost:5000/api/postings', {
+      // Step 3: Use buildPath for the API endpoint
+      const response = await fetch(buildPath('api/postings'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +64,6 @@ export const CreatePostingModal: React.FC<CreatePostingModalProps> = ({ isOpen, 
       }
 
       toast.success('Posting published');
-      // Reset form
       setTitle('');
       setDescription('');
       setRequiredMajor('Computer Science');

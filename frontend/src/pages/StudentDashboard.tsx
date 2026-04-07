@@ -5,6 +5,23 @@ import { StudentSidebar } from '../components/StudentSidebar';
 import { ResearchCard, type ResearchPosting } from '../components/ResearchCard';
 import { useAuth } from '../context/AuthContext';
 
+// Step 1: Define your domain name
+const app_name = 'cop4331-11-domain.xyz';
+
+// Step 2: Implement the buildPath function with safe environment checking
+function buildPath(route: string): string {
+    // We check for import.meta safely to avoid esbuild target errors
+    const isDevelopment = typeof import.meta !== 'undefined' && 
+                         import.meta.env && 
+                         import.meta.env.MODE === 'development';
+
+    if (!isDevelopment) {
+        return 'http://' + app_name + ':5000/' + route;
+    } else {
+        return 'http://localhost:5000/' + route;
+    }
+}
+
 export const StudentDashboard: React.FC = () => {
   const [postings, setPostings] = useState<ResearchPosting[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +39,8 @@ export const StudentDashboard: React.FC = () => {
         if (filters.major) params.append('major', filters.major);
         if (filters.department) params.append('department', filters.department);
         
-        const response = await fetch(`http://localhost:5000/api/search?${params.toString()}`, {
+        // Step 3: Use buildPath for the search API endpoint
+        const response = await fetch(buildPath(`api/search?${params.toString()}`), {
           headers: {
             'Authorization': `Bearer ${token}`
           }

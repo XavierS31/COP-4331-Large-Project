@@ -3,6 +3,20 @@ import toast from 'react-hot-toast';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { useAuth } from '../context/AuthContext';
 
+// Step 1: Define your application name/domain 
+const app_name = 'cop4331-11-domain.xyz';
+
+// Step 2: Add the buildPath function to handle environment switching [cite: 14-15]
+function buildPath(route: string): string {
+  if (import.meta.env.MODE !== 'development') {
+    // Remote path for production [cite: 16-19]
+    return 'http://' + app_name + ':5000/' + route;
+  } else {
+    // Local path for development [cite: 20-23]
+    return 'http://localhost:5000/' + route;
+  }
+}
+
 export interface Posting {
   _id: string;
   title: string;
@@ -35,7 +49,8 @@ export const PostingItem: React.FC<PostingItemProps> = ({ posting, onDeleted }) 
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/postings/${posting._id}`, {
+      // Step 3: Update fetch to use buildPath instead of hardcoded localhost [cite: 29-33]
+      const response = await fetch(buildPath(`api/postings/${posting._id}`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
