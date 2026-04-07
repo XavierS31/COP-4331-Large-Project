@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import knightLabLogo from '../assets/KnightLabLogo.png';
 
 interface TopNavBarProps {
   showAuthButtons?: boolean;
@@ -15,8 +16,16 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({ showAuthButtons = true, se
   return (
     <nav className="fixed top-0 w-full z-50 bg-[#f9f9f7]/80 dark:bg-[#1a1c1b]/80 backdrop-blur-md flex justify-between items-center px-8 py-4 max-w-full border-b border-outline-variant/10">
       <div className="flex items-center gap-8">
-        <Link to="/" className="text-xl font-black uppercase tracking-tighter text-[#1a1c1b] dark:text-[#f9f9f7] font-headline">
-          Research Finder
+        <Link to="/" className="flex items-center gap-2 shrink-0">
+          <img
+            src={knightLabLogo}
+            alt=""
+            className="h-8 w-auto max-h-10 object-contain object-left"
+          />
+          <span className="text-xl font-black tracking-tight whitespace-nowrap font-headline">
+            <span className="text-[#1a1c1b] dark:text-[#f9f9f7]">Knight</span>
+            <span className="text-[#755b00] dark:text-[#ffc909]"> Lab</span>
+          </span>
         </Link>
         {onSearchChange !== undefined && (
           <div className="hidden md:flex relative ml-4 w-96">
@@ -30,11 +39,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({ showAuthButtons = true, se
             />
           </div>
         )}
-        <div className="hidden md:flex gap-6 font-headline font-bold tracking-tight">
-          <a className="text-[#1a1c1b] dark:text-[#f9f9f7] opacity-70 hover:text-[#755b00] dark:hover:text-[#ffc909] transition-colors duration-300 cursor-pointer" onClick={(e) => { e.preventDefault(); toast('Feature coming soon!', { icon: '🚧' }); }}>Explore</a>
-          <a className="text-[#1a1c1b] dark:text-[#f9f9f7] opacity-70 hover:text-[#755b00] dark:hover:text-[#ffc909] transition-colors duration-300 cursor-pointer" onClick={(e) => { e.preventDefault(); toast('Feature coming soon!', { icon: '🚧' }); }}>Directory</a>
-          <a className="text-[#1a1c1b] dark:text-[#f9f9f7] opacity-70 hover:text-[#755b00] dark:hover:text-[#ffc909] transition-colors duration-300 cursor-pointer" onClick={(e) => { e.preventDefault(); toast('Feature coming soon!', { icon: '🚧' }); }}>Methodology</a>
-        </div>
+        
       </div>
       <div className="flex items-center gap-4">
         {user ? (
