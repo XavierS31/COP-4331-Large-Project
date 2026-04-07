@@ -20,9 +20,9 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({ showAuthButtons = true, se
           <img
             src={knightLabLogo}
             alt=""
-            className="h-8 w-auto max-h-10 object-contain object-left"
+            className="h-11 sm:h-12 w-auto object-contain object-left"
           />
-          <span className="text-xl font-black tracking-tight whitespace-nowrap font-headline">
+          <span className="text-2xl sm:text-3xl font-black tracking-tight whitespace-nowrap font-headline">
             <span className="text-[#1a1c1b] dark:text-[#f9f9f7]">Knight</span>
             <span className="text-[#755b00] dark:text-[#ffc909]"> Lab</span>
           </span>

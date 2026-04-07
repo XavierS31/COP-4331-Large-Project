@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import PageTitle from './PageTitle';
 
 // Step 1: Define your application name/domain 
 const app_name = 'cop4331-11-domain.xyz';
@@ -71,6 +72,7 @@ export const LoginForm: React.FC = () => {
   return (
     <section className="w-full md:w-1/2 bg-surface flex items-center justify-center p-6 md:p-24">
       <div className="w-full max-w-md">
+        
         <div className="mb-12">
           <h2 className="font-headline text-4xl font-bold text-on-surface tracking-tight mb-2">Institutional Login</h2>
           <p className="text-on-surface-variant font-body">Enter your credentials to access your research dashboard.</p>
@@ -132,9 +134,7 @@ export const LoginForm: React.FC = () => {
           </button>
         </form>
         <div className="mt-12 pt-8 border-t border-outline-variant/15 text-center">
-          <p className="text-on-surface-variant font-body text-sm">
-            Trouble logging in? <a className="text-primary font-bold hover:underline decoration-[#ffc909]" href="#">Contact IT Support</a>
-          </p>
+        
         </div>
       </div>
     </section>

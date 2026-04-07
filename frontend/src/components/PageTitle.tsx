@@ -2,13 +2,13 @@ import knightLabLogo from '../assets/KnightLabLogo.png';
 
 function PageTitle() {
   return (
-    <h1 id="title" className="inline-flex items-center gap-2 flex-wrap">
+    <h1 id="title" className="inline-flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
       <img
         src={knightLabLogo}
         alt=""
-        className="h-10 w-auto max-w-full object-contain object-left"
+        className="h-20 sm:h-24 w-auto max-w-full object-contain object-left"
       />
-      <span className="text-2xl font-black tracking-tight font-headline">
+      <span className="text-5xl sm:text-6xl font-black tracking-tight font-headline">
         <span className="text-[#1a1c1b] dark:text-[#f9f9f7]">Knight</span>
         <span className="text-[#755b00] dark:text-[#ffc909]"> Lab</span>
       </span>
