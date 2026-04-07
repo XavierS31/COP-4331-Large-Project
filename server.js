@@ -161,8 +161,122 @@ app.post('/api/forgot-password', async (req, res) => {
   }
 });
 
-// --- REMAINING ROUTES (Search, Postings, Applications) ---
-// [I have kept your existing logic for these, simply ensuring verifyToken and DB calls remain stable]
+app.patch('/api/edit/student', verifyToken, async (req, res, next) => {
+  // incoming: any fields to update (firstName, lastName, password, ucfEmail, major, college)
+  // outgoing: error
+
+  const { firstName, lastName, password, ucfEmail, major, college } = req.body;
+  const username = req.user.username;  // Use authenticated user's username from token
+
+  var error = '';
+
+  // Build update object with only provided fields
+  const updateFields = {};
+  if (firstName) updateFields.firstName = firstName;
+  if (lastName) updateFields.lastName = lastName;
+  if (password) updateFields.password = password;
+  if (ucfEmail) updateFields.ucfEmail = ucfEmail;
+  if (major) updateFields.major = major;
+  if (college) updateFields.college = college;
+
+  try {
+    const db = client.db('researchportal');
+    const result = await db.collection('students').updateOne(
+      { username: username },
+      { $set: updateFields }
+    );
+
+    if (result.matchedCount === 0) {
+      error = "Student not found";
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  var ret = { error: error, token: req.newToken };
+  res.status(200).json(ret);
+});
+
+app.patch('/api/edit/faculty', verifyToken, async (req, res, next) => {
+  // incoming: any fields to update (firstName, lastName, password, email, role, department)
+  // outgoing: error
+
+  const { firstName, lastName, password, email, role, department } = req.body;
+  const username = req.user.username;  // Use authenticated user's username from token
+
+  var error = '';
+
+  // Build update object with only provided fields
+  const updateFields = {};
+  if (firstName) updateFields.firstName = firstName;
+  if (lastName) updateFields.lastName = lastName;
+  if (password) updateFields.password = password;
+  if (email) updateFields.email = email;
+  if (role) updateFields.role = role;
+  if (department) updateFields.department = department;
+
+  try {
+    const db = client.db('researchportal');
+    const result = await db.collection('faculty').updateOne(
+      { username: username },
+      { $set: updateFields }
+    );
+
+    if (result.matchedCount === 0) {
+      error = "Faculty not found";
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  var ret = { error: error, token: req.newToken };
+  res.status(200).json(ret);
+});
+
+app.delete('/api/delete/student', verifyToken, async (req, res, next) => {
+  // outgoing: error
+
+  const username = req.user.username;  // Use authenticated user's username from token
+
+  var error = '';
+
+  try {
+    const db = client.db('researchportal');
+    const result = await db.collection('students').deleteOne({ username: username });
+
+    if (result.deletedCount === 0) {
+      error = "Student not found";
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  var ret = { error: error, token: req.newToken };
+  res.status(200).json(ret);
+});
+
+app.delete('/api/delete/faculty', verifyToken, async (req, res, next) => {
+  // outgoing: error
+
+  const username = req.user.username;  // Use authenticated user's username from token
+
+  var error = '';
+
+  try {
+    const db = client.db('researchportal');
+    const result = await db.collection('faculty').deleteOne({ username: username });
+
+    if (result.deletedCount === 0) {
+      error = "Faculty not found";
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  var ret = { error: error, token: req.newToken };
+  res.status(200).json(ret);
+});
+
 
 app.get('/api/verify-email', async (req, res) => {
   const token = req.query.token;
@@ -191,6 +305,251 @@ app.get('/api/search', async (req, res) => {
 
   const postings = await db.collection('postings').find(filter).sort({ createdAt: -1 }).toArray();
   res.status(200).json({ postings });
+});
+app.post('/api/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const db = client.db('researchportal');
+    const student = await db.collection('students').findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: Date.now() }
+    });
+
+    const faculty = (!student) ? await db.collection('faculty').findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: Date.now() }
+    }) : null;
+
+    const user = student || faculty;
+    const collectionName = student ? 'students' : 'faculty';
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.collection(collectionName).updateOne(
+      { _id: user._id },
+      {
+        $set: { password: hashedPassword },
+        $unset: { resetToken: "", resetTokenExpiry: "" }
+      }
+    );
+
+    res.status(200).json({ message: 'Password has been reset successfully' });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
+app.get('/api/search', async (req, res) => {
+  try {
+    const { q, major, department } = req.query;
+    const db = client.db('researchportal');
+    const filter = {};
+
+    if (q) {
+      filter.$or = [
+        { title: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } }
+      ];
+    }
+    if (major) filter.requiredMajor = { $regex: major, $options: 'i' };
+    if (department) filter.department = { $regex: department, $options: 'i' };
+
+    const postings = await db.collection('postings').find(filter).sort({ createdAt: -1 }).toArray();
+    res.status(200).json({ postings });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
+app.post('/api/postings', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'faculty') {
+    return res.status(403).json({ error: 'Only faculty can create postings' });
+  }
+
+  const { title, description, requiredMajor, capacity, department } = req.body;
+
+  const newPosting = {
+    title,
+    description,
+    requiredMajor,
+    capacity,
+    department,
+    facultyUsername: req.user.username,
+    createdAt: new Date(),
+    applicantCount: 0
+  };
+
+  try {
+    const db = client.db('researchportal');
+    await db.collection('postings').insertOne(newPosting);
+    res.status(200).json({ posting: newPosting, token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
+app.get('/api/postings/mine', verifyToken, async (req, res) => {
+  try {
+    const db = client.db('researchportal');
+    const postings = await db.collection('postings')
+      .find({ facultyUsername: req.user.username })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.status(200).json({ postings, token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
+app.delete('/api/postings/:id', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'faculty') {
+    return res.status(403).json({ error: 'Only faculty can delete postings' });
+  }
+
+  try {
+    const db = client.db('researchportal');
+    const result = await db.collection('postings').deleteOne({
+      _id: new ObjectId(req.params.id),
+      facultyUsername: req.user.username
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Posting not found or unauthorized' });
+    }
+
+    res.status(200).json({ token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
+app.post('/api/research/create', verifyToken, async (req, res, next) => {
+  // incoming: title, description, college, isopen (optional: postedAt)
+  // outgoing: error, research post object, newToken
+
+  // Only allow faculty to create research posts
+  if (req.user.userType !== 'faculty') {
+    return res.status(403).json({ error: 'Only faculty can create research posts', token: req.newToken });
+  }
+
+  const { title, description, college, isopen } = req.body;
+  const postedAt = req.body.postedAt || new Date().toISOString().split('T')[0];
+
+  var error = '';
+
+  // Validate required fields
+  if (!title || !description || !college) {
+    error = "Title, description, and college are required";
+    return res.status(200).json({ error: error, token: req.newToken });
+  }
+
+  try {
+    const db = client.db('researchportal');
+
+    // Get faculty member's _id
+    const faculty = await db.collection('faculty').findOne({ username: req.user.username });
+
+    if (!faculty) {
+      error = "Faculty not found";
+      return res.status(200).json({ error: error, token: req.newToken });
+    }
+
+    // Create new research post linked to faculty's _id
+    const newResearchPost = {
+      facultyId: faculty._id,
+      title: title,
+      description: description,
+      college: college,
+      isOpen: isopen !== undefined ? isopen : true,
+      postedAt: postedAt
+    };
+
+    const result = await db.collection('research').insertOne(newResearchPost);
+
+    var ret = {
+      error: error,
+      researchPost: newResearchPost,
+      postId: result.insertedId,
+      token: req.newToken
+    };
+    res.status(200).json(ret);
+  } catch (e) {
+    error = e.toString();
+    var ret = { error: error, token: req.newToken };
+    res.status(200).json(ret);
+  }
+});
+
+app.post('/api/applications/create', verifyToken, async (req, res, next) => {
+  // incoming: researchId, statement (optional: status, appliedAt)
+  // outgoing: error, application object, newToken
+
+  // Only allow students to create applications
+  if (req.user.userType !== 'student') {
+    return res.status(403).json({ error: 'Only students can create applications', token: req.newToken });
+  }
+
+  const { researchId, statement } = req.body;
+  const status = req.body.status || 'pending';
+  const appliedAt = req.body.appliedAt || new Date().toISOString().split('T')[0];
+
+  var error = '';
+
+  // Validate required fields
+  if (!researchId || !statement) {
+    error = "researchId and statement are required";
+    return res.status(200).json({ error: error, token: req.newToken });
+  }
+
+  try {
+    const db = client.db('researchportal');
+    const { ObjectId } = require('mongodb');
+
+    // Get student's _id
+    const student = await db.collection('students').findOne({ username: req.user.username });
+
+    if (!student) {
+      error = "Student not found";
+      return res.status(200).json({ error: error, token: req.newToken });
+    }
+
+    // Verify research post exists
+    const research = await db.collection('research').findOne({ _id: new ObjectId(researchId) });
+
+    if (!research) {
+      error = "Research post not found";
+      return res.status(200).json({ error: error, token: req.newToken });
+    }
+
+    // Create new application linked to student and research post
+    const newApplication = {
+      researchId: new ObjectId(researchId),
+      studentId: student._id,
+      status: status,
+      statement: statement,
+      appliedAt: appliedAt
+    };
+
+    const result = await db.collection('applications').insertOne(newApplication);
+
+    var ret = {
+      error: error,
+      application: newApplication,
+      applicationId: result.insertedId,
+      token: req.newToken
+    };
+    res.status(200).json(ret);
+  } catch (e) {
+    error = e.toString();
+    var ret = { error: error, token: req.newToken };
+    res.status(200).json(ret);
+  }
 });
 
 // Start Server
