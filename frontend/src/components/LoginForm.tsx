@@ -70,9 +70,11 @@ export const LoginForm: React.FC = () => {
   };
 
   return (
-    <section className="w-full md:w-1/2 bg-surface flex items-center justify-center p-6 md:p-24">
+    <section className="w-full md:w-1/2 bg-surface flex items-center justify-center p-8 md:p-24">
       <div className="w-full max-w-md">
-        
+        <div className="mb-8 flex justify-center md:justify-start">
+          <PageTitle />
+        </div>
         <div className="mb-12">
           <h2 className="font-headline text-4xl font-bold text-on-surface tracking-tight mb-2">Institutional Login</h2>
           <p className="text-on-surface-variant font-body">Enter your credentials to access your research dashboard.</p>

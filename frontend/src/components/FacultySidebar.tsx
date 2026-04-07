@@ -1,5 +1,6 @@
 import React from 'react';
 import toast from 'react-hot-toast';
+import knightLabLogo from '../assets/KnightLabLogo.png';
 
 interface FacultySidebarProps {
   onCreateClick: () => void;
@@ -9,10 +10,13 @@ export const FacultySidebar: React.FC<FacultySidebarProps> = ({ onCreateClick })
   return (
     <aside className="fixed left-0 top-0 w-64 bg-[#f4f4f2] dark:bg-[#1a1c1b] flex flex-col h-full py-8 px-4 gap-4 z-40">
       <div className="mb-8 px-4">
-        <div className="flex items-center gap-3 mb-2">
-          <img alt="University Crest" className="w-10 h-10 rounded-full bg-primary-container p-1"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwuVljnIE6qtkldplWb_i8A2j3LESDv8m5gqIv6wUdfsWlgQQYQ0hPbZmzmimbXaNYb77XDaSpGuZo8WEULv3zUXAYgKjRVEofi2K3DHlThrQuKiiOMS-KBuOYwfM95PQ5aqYlZw-rNWAW9g2zdqt6JQAouRf-T5Dbl8PueMtIe9G5Es44tnVn2Qu2cgq7uA_z6mCweftXxXGB47IkSrfjzG9H58cd7n_B4uF9Dm_6eOqiUn7E62lkAkj5u2J_AldDlnUZXmvl2b8" />
-          <div className="flex flex-col">
+        <div className="flex flex-col gap-3 items-center">
+          <img
+            src={knightLabLogo}
+            alt=""
+            className="h-24 w-auto max-w-[360px] object-contain object-center"
+          />
+          <div className="flex flex-col gap-1 text-center w-full">
             <span className="text-lg font-bold text-on-surface">Faculty Portal</span>
             <span className="font-label text-[10px] uppercase tracking-[0.1em] text-on-surface opacity-60">Research Administration</span>
           </div>

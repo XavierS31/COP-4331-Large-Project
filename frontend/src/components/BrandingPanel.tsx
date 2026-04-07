@@ -1,4 +1,5 @@
 import React from 'react';
+import ucfr1 from '../assets/UCFR1.jpg';
 
 interface BrandingPanelProps {
   variant: 'login' | 'register';
@@ -9,7 +10,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({ variant }) => {
     return (
       <section className="hidden md:flex md:w-1/2 academic-gradient relative items-center justify-center p-12 overflow-hidden">
         <div className="absolute inset-0 opacity-40 mix-blend-overlay">
-          <img alt="" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIWw4CTJxtE5_6Z3inJHDzGO6T-V3iKDR14LhGpv6UnbMfPw8c9ktEW5qUagBRF_nfqBCsrOqRLfeMoiyR4-chZnb-KbAlGKxp3sB3oaEAn3iVYCT3lJClHnFEZW7gBXJg_2zVTr-9CXuv0PLYPjobftRXO6tARyTIR6xcfIfknlQBrOGzrpO9ocFdxtMnXZItPdZHX1_yiE8QsZmh3oEVyCEQ1sAi57N5u1N-lZ5i8KmNBKZ9ho_-502X_pmAUtvGk7lDWbCbiKs" />
+          <img alt="" className="w-full h-full object-cover" src={ucfr1} />
         </div>
         <div className="relative z-10 max-w-lg">
           <div className="mb-8">
@@ -18,18 +19,17 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({ variant }) => {
               Advancing Global <span className="text-[#ffc909]">Knowledge</span> Through Collaboration.
             </h1>
             <p className="text-white/80 text-lg font-body leading-relaxed mb-8">
-              Welcome to the official University Research Portal. Access a repository of over 50,000
-              peer-reviewed papers and ongoing doctoral studies.
+              Welcome to Knight Lab, where curiosity meets collaboration. UCFs Research Hub for faculty and Students to collaborate on research projects.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <p className="text-[#ffc909] font-headline font-black text-2xl">24k+</p>
+              <p className="text-[#ffc909] font-headline font-black text-2xl">1.9k+</p>
               <p className="text-white/60 text-xs font-label tracking-widest uppercase">Active Researchers</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <p className="text-[#ffc909] font-headline font-black text-2xl">1.2M</p>
-              <p className="text-white/60 text-xs font-label tracking-widest uppercase">Citations Indexed</p>
+              <p className="text-[#ffc909] font-headline font-black text-2xl">~250</p>
+              <p className="text-white/60 text-xs font-label tracking-widest uppercase">Research Labs</p>
             </div>
           </div>
         </div>
@@ -41,7 +41,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({ variant }) => {
   return (
     <section className="relative hidden md:flex w-full md:w-1/2 min-h-[400px] md:min-h-0 items-end p-12 overflow-hidden bg-inverse-surface">
       <div className="absolute inset-0 opacity-40 mix-blend-overlay">
-        <img alt="University architecture" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALfk62DdcEjt18unw-QYpJA8AjaJ4AOkff06ekgKia8_lSzepGjVqpVYD7Ha_RivG4KZWZu_Z-ZtTn1rBJw9rtMxQZbXziuVUxr3LD3idK--zfWLsC9d5kHQVsDatSa5HNzhB1QMPHELeCcrqa1z0MOb__BI8TAYVDZHU3_7Lw2mJbtlOvsegWzy-eLpoPpASIXE6uHRWwcjkJ6jl2zBE5QrqI-ZoYS03I8RE2wWmy_CQEZ6CrcIbWKDCYo65ST6iutLvoRGueoh0" />
+        <img alt="" className="w-full h-full object-cover" src={ucfr1} />
       </div>
       <div className="absolute inset-0 bg-gradient-to-t from-on-background via-transparent to-transparent opacity-60">
       </div>
