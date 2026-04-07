@@ -1,5 +1,18 @@
 import React, { useState } from 'react';
 
+// Using your specific domain name [cite: 13]
+const app_name = 'cop4331-11-domain.xyz';
+
+// Function that supports both local and remote development paths [cite: 11, 14-15]
+function buildPath(route: string): string {
+  // Check if the environment is in production mode [cite: 16-17]
+  if (import.meta.env.MODE != 'development') {
+    return 'http://' + app_name + ':5000/' + route; // Remote path [cite: 18-19]
+  } else {
+    return 'http://localhost:5000/' + route; // Local path [cite: 20-23]
+  }
+}
+
 function Login() {
   const [message, setMessage] = useState('');
   const [loginName, setLoginName] = useState('');
@@ -11,16 +24,21 @@ function Login() {
     const js = JSON.stringify(obj);
 
     try {
-      const response = await fetch('http://localhost:5000/api/login',
-        { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
+      // Changed the hardcoded fetch to use buildPath [cite: 25-26]
+      const response = await fetch(buildPath('api/login'), { 
+        method: 'POST', 
+        body: js, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
+
       const res = JSON.parse(await response.text());
 
       if (res.id <= 0) {
-        setMessage('User/Password combination incorrect'); 
+        setMessage('User/Password combination incorrect');
       } else {
         const user = { firstName: res.firstName, lastName: res.lastName, id: res.id };
-        localStorage.setItem('user_data', JSON.stringify(user)); 
-        window.location.href = '/cards'; 
+        localStorage.setItem('user_data', JSON.stringify(user));
+        window.location.href = '/cards';
       }
     } catch (error: any) {
       alert(error.toString());
@@ -37,4 +55,5 @@ function Login() {
     </div>
   );
 }
+
 export default Login;

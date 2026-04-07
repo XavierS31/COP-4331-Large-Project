@@ -2,6 +2,25 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
+// Step 1: Define your domain name 
+const app_name = 'cop4331-11-domain.xyz';
+
+// Step 2: Implement the buildPath function [cite: 14-15]
+function buildPath(route: string): string {
+  // Use a safe check for environments where import.meta might be restricted
+  const isDevelopment = typeof import.meta !== 'undefined' && 
+                       import.meta.env && 
+                       import.meta.env.MODE === 'development';
+
+  if (!isDevelopment) {
+    // Remote production path [cite: 16-19]
+    return 'http://' + app_name + ':5000/' + route;
+  } else {
+    // Local development path [cite: 20-23]
+    return 'http://localhost:5000/' + route;
+  }
+}
+
 export const RegisterForm: React.FC = () => {
   const [userRole, setUserRole] = useState<'Student' | 'Faculty'>('Student');
   
@@ -33,7 +52,8 @@ export const RegisterForm: React.FC = () => {
     }
 
     const isStudent = userRole === 'Student';
-    const endpoint = isStudent ? '/api/signup/student' : '/api/signup/faculty';
+    // Remove the leading slash if your buildPath appends it automatically
+    const endpoint = isStudent ? 'api/signup/student' : 'api/signup/faculty';
     
     let body: any = {};
     if (isStudent) {
@@ -43,7 +63,8 @@ export const RegisterForm: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      // Step 3: Update fetch to use buildPath 
+      const response = await fetch(buildPath(endpoint), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)

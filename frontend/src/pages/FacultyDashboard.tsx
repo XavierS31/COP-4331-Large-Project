@@ -5,6 +5,24 @@ import { CreatePostingModal } from '../components/CreatePostingModal';
 import { PostingItem, type Posting } from '../components/PostingItem';
 import { useAuth } from '../context/AuthContext';
 
+// Step 1: Define your domain name [cite: 13, 67]
+const app_name = 'cop4331-11-domain.xyz';
+
+// Step 2: Implement the buildPath function with safe environment checking [cite: 14, 16]
+function buildPath(route: string): string {
+    const isDevelopment = typeof import.meta !== 'undefined' && 
+                         import.meta.env && 
+                         import.meta.env.MODE === 'development';
+
+    if (!isDevelopment) {
+        // Remote path for production [cite: 18]
+        return 'http://' + app_name + ':5000/' + route;
+    } else {
+        // Local path for development [cite: 22]
+        return 'http://localhost:5000/' + route;
+    }
+}
+
 export const FacultyDashboard: React.FC = () => {
   const [postings, setPostings] = useState<Posting[]>([]);
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
@@ -13,7 +31,8 @@ export const FacultyDashboard: React.FC = () => {
 
   const fetchPostings = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/postings/mine', {
+      // Step 3: Update fetch to use buildPath instead of hardcoded localhost [cite: 26, 32]
+      const response = await fetch(buildPath('api/postings/mine'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
