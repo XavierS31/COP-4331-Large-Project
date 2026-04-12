@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { useAuth } from '../context/AuthContext';
+import { EditPostingModal } from './EditPostingModal';
 
 // Step 1: Define your application name/domain 
 const app_name = 'cop4331-11-domain.xyz';
@@ -34,6 +35,7 @@ interface PostingItemProps {
 export const PostingItem: React.FC<PostingItemProps> = ({ posting, onDeleted }) => {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
   const { token, refreshToken } = useAuth();
   const menuRef = useRef<HTMLDivElement>(null);
   
@@ -123,6 +125,17 @@ export const PostingItem: React.FC<PostingItemProps> = ({ posting, onDeleted }) 
                 <button 
                   onClick={() => {
                     setMenuOpen(false);
+                    setEditModalOpen(true);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-primary/10 transition-colors flex items-center gap-2 font-medium"
+                >
+                  <span className="material-symbols-outlined text-sm select-none">edit</span>
+                  Edit Posting
+                </button>
+                
+                <button 
+                  onClick={() => {
+                    setMenuOpen(false);
                     setDeleteModalOpen(true);
                   }}
                   className="w-full text-left px-4 py-2 text-sm text-error hover:bg-error/10 transition-colors flex items-center gap-2 font-bold"
@@ -142,6 +155,12 @@ export const PostingItem: React.FC<PostingItemProps> = ({ posting, onDeleted }) 
         onConfirm={handleDelete}
         onCancel={() => setDeleteModalOpen(false)}
       />
+      <EditPostingModal 
+      isOpen={isEditModalOpen}
+      posting={posting}
+      onClose={() => setEditModalOpen(false)}
+      onUpdated={onDeleted} // Reuse onDeleted to refresh the list
+    />
     </>
   );
 };

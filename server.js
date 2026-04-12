@@ -182,7 +182,7 @@ app.patch('/api/edit/student', verifyToken, async (req, res, next) => {
   const updateFields = {};
   if (firstName) updateFields.firstName = firstName;
   if (lastName) updateFields.lastName = lastName;
-  if (password) updateFields.password = password;
+  if (password) updateFields.password = await bcrypt.hash(password, 10);
   if (ucfEmail) updateFields.ucfEmail = ucfEmail;
   if (major) updateFields.major = major;
   if (college) updateFields.college = college;
@@ -482,6 +482,37 @@ app.post('/api/applications/create', verifyToken, async (req, res, next) => {
     error = e.toString();
     var ret = { error: error, token: req.newToken };
     res.status(200).json(ret);
+  }
+});
+
+//new
+app.patch('/api/postings/:id', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'faculty') {
+    return res.status(403).json({ error: 'Only faculty can edit postings' });
+  }
+
+  const { title, description, requiredMajor, capacity, department } = req.body;
+  const updateFields = {};
+  if (title) updateFields.title = title;
+  if (description) updateFields.description = description;
+  if (requiredMajor) updateFields.requiredMajor = requiredMajor;
+  if (capacity) updateFields.capacity = capacity;
+  if (department) updateFields.department = department;
+
+  try {
+    const db = client.db('researchportal');
+    const result = await db.collection('postings').updateOne(
+      { _id: new ObjectId(req.params.id), facultyUsername: req.user.username },
+      { $set: updateFields }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Posting not found or unauthorized' });
+    }
+
+    res.status(200).json({ message: 'Update successful', token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
   }
 });
 
