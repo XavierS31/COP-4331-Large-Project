@@ -417,74 +417,56 @@ app.delete('/api/postings/:id', verifyToken, async (req, res) => {
   }
 });
 
-
-
-app.post('/api/applications/create', verifyToken, async (req, res, next) => {
-  // incoming: researchId, statement (optional: status, appliedAt)
-  // outgoing: error, application object, newToken
-
-  // Only allow students to create applications
+app.post('/api/applications/create', verifyToken, async (req, res) => {
   if (req.user.userType !== 'student') {
-    return res.status(403).json({ error: 'Only students can create applications', token: req.newToken });
+    return res.status(403).json({ error: 'Only students can create applications' });
   }
 
   const { researchId, statement } = req.body;
-  const status = req.body.status || 'pending';
-  const appliedAt = req.body.appliedAt || new Date().toISOString().split('T')[0];
 
-  var error = '';
-
-  // Validate required fields
   if (!researchId || !statement) {
-    error = "researchId and statement are required";
-    return res.status(200).json({ error: error, token: req.newToken });
+    return res.status(400).json({ error: "researchId and statement are required" });
   }
 
   try {
     const db = client.db('researchportal');
-    const { ObjectId } = require('mongodb');
 
-    // Get student's _id
+    // 1. Get student profile for info
     const student = await db.collection('students').findOne({ username: req.user.username });
-
     if (!student) {
-      error = "Student not found";
-      return res.status(200).json({ error: error, token: req.newToken });
+      return res.status(404).json({ error: "Student not found" });
     }
 
-    // Verify research post exists
-    const research = await db.collection('postings').findOne({ _id: new ObjectId(researchId) });
-
-    if (!research) {
-      error = "Posting not found";
-      return res.status(200).json({ error: error, token: req.newToken });
-    }
-
-    // Create new application linked to student and research post
+    // 2. Create the application object
     const newApplication = {
       researchId: new ObjectId(researchId),
       studentId: student._id,
-      status: status,
+      studentName: `${student.firstName} ${student.lastName}`,
+      studentEmail: student.ucfEmail,
+      studentMajor: student.major,
       statement: statement,
-      appliedAt: appliedAt
+      status: 'pending',
+      appliedAt: new Date()
     };
 
+    // 3. Insert the application
     const result = await db.collection('applications').insertOne(newApplication);
 
-    var ret = {
-      error: error,
-      application: newApplication,
+    // 4. CRITICAL FIX: Increment the applicantCount in the postings collection
+    await db.collection('postings').updateOne(
+      { _id: new ObjectId(researchId) },
+      { $inc: { applicantCount: 1 } } // This adds 1 to the existing count
+    );
+
+    res.status(200).json({
+      message: "Application submitted!",
       applicationId: result.insertedId,
       token: req.newToken
-    };
-    res.status(200).json(ret);
+    });
   } catch (e) {
-    error = e.toString();
-    var ret = { error: error, token: req.newToken };
-    res.status(200).json(ret);
+    res.status(500).json({ error: e.toString() });
   }
 });
-
 //new
 app.patch('/api/postings/:id', verifyToken, async (req, res) => {
   if (req.user.userType !== 'faculty') {
@@ -516,6 +498,70 @@ app.patch('/api/postings/:id', verifyToken, async (req, res) => {
   }
 });
 
+// --- APPLICATION ROUTES ---
+
+app.get('/api/applications/mine', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'student') {
+    return res.status(403).json({ error: 'Only students can view their applications' });
+  }
+
+  try {
+    const db = client.db('researchportal');
+    // 1. Find the student record to get their unique _id
+    const student = await db.collection('students').findOne({ username: req.user.username });
+    
+    if (!student) return res.status(404).json({ error: 'Student not found' });
+
+    // 2. Use aggregation to join the application with its research posting details
+    const applications = await db.collection('applications').aggregate([
+      { $match: { studentId: student._id } },
+      {
+        $lookup: {
+          from: 'postings',
+          localField: 'researchId',
+          foreignField: '_id',
+          as: 'project'
+        }
+      },
+      { $unwind: '$project' }, // Flatten the project array
+      { $sort: { appliedAt: -1 } }
+    ]).toArray();
+
+    res.status(200).json({ applications, token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+// Get all applications for a specific posting (Faculty only)
+app.get('/api/postings/:id/applications', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'faculty') {
+    return res.status(403).json({ error: 'Only faculty can view applications' });
+  }
+
+  try {
+    const db = client.db('researchportal');
+    
+    // 1. Verify the posting belongs to this faculty member
+    const posting = await db.collection('postings').findOne({
+      _id: new ObjectId(req.params.id),
+      facultyUsername: req.user.username
+    });
+
+    if (!posting) {
+      return res.status(404).json({ error: 'Posting not found or unauthorized' });
+    }
+
+    // 2. Fetch all applications for this posting
+    const applications = await db.collection('applications')
+      .find({ researchId: new ObjectId(req.params.id) })
+      .sort({ appliedAt: -1 })
+      .toArray();
+
+    res.status(200).json({ applications, token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
 // Start Server
 async function start() {
   try {
