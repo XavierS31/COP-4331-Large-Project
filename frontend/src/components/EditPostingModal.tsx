@@ -1,53 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
-export interface Posting {
+
+// Step 1: Export this specific name so PostingItem can find it
+export interface FullPosting {
   _id: string;
   title: string;
-  createdAt: string;
+  description: string;
+  requiredMajor: string;
   department: string;
-  applicantCount?: number;
-  newApplicants?: number;
-}
-// Helper to handle API paths [Matches your PostingItem logic]
-const app_name = 'cop4331-11-domain.xyz';
-function buildPath(route: string): string {
-  if (import.meta.env.MODE !== 'development') {
-    return 'http://' + app_name + ':5000/' + route;
-  } else {
-    return 'http://localhost:5000/' + route;
-  }
+  capacity: number;
 }
 
 interface EditPostingModalProps {
   isOpen: boolean;
-  posting: Posting | null;
+  posting: FullPosting | null;
   onClose: () => void;
   onUpdated: () => void;
+}
+
+const app_name = 'cop4331-11-domain.xyz';
+function buildPath(route: string): string {
+  return (import.meta.env.MODE !== 'development') 
+    ? `http://${app_name}:5000/${route}` 
+    : `http://localhost:5000/${route}`;
 }
 
 export const EditPostingModal: React.FC<EditPostingModalProps> = ({ isOpen, posting, onClose, onUpdated }) => {
   const { token, refreshToken } = useAuth();
   const [loading, setLoading] = useState(false);
   
-  // Form State
   const [formData, setFormData] = useState({
     title: '',
     department: '',
-    description: '', // If your Posting interface includes this
+    description: '',
     requiredMajor: '',
     capacity: 0
   });
 
-  // Pre-fill form when posting changes
+  // Load the data into the form when the modal opens
   useEffect(() => {
-    if (posting) {
+    if (posting && isOpen) {
       setFormData({
         title: posting.title || '',
         department: posting.department || '',
-        description: (posting as any).description || '',
-        requiredMajor: (posting as any).requiredMajor || '',
-        capacity: (posting as any).capacity || 0
+        description: posting.description || '',
+        requiredMajor: posting.requiredMajor || '',
+        capacity: posting.capacity || 0
       });
     }
   }, [posting, isOpen]);
@@ -68,18 +67,17 @@ export const EditPostingModal: React.FC<EditPostingModalProps> = ({ isOpen, post
       });
 
       const data = await response.json();
-
       if (data.token) refreshToken(data.token);
 
       if (data.error) {
         toast.error(data.error);
       } else {
-        toast.success('Posting updated successfully');
+        toast.success('Update successful');
         onUpdated();
         onClose();
       }
     } catch (err) {
-      toast.error('Failed to update posting');
+      toast.error('Failed to update');
     } finally {
       setLoading(false);
     }
@@ -88,91 +86,51 @@ export const EditPostingModal: React.FC<EditPostingModalProps> = ({ isOpen, post
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Overlay */}
-      <div 
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm" 
-        onClick={onClose}
-      ></div>
-
-      {/* Modal Container */}
-      <div className="relative bg-surface-container-low w-full max-w-lg rounded-2xl shadow-2xl border border-outline-variant/20 overflow-hidden animate-in fade-in zoom-in duration-200">
-        
-        {/* Header */}
-        <div className="p-6 border-b border-outline-variant/10">
-          <h2 className="text-2xl font-headline font-bold text-on-surface">Edit Posting</h2>
-          <p className="text-sm text-on-surface-variant">Update the details for your research opportunity.</p>
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white dark:bg-[#1a1c1b] w-full max-w-lg rounded-xl shadow-2xl overflow-hidden border border-outline-variant/20">
+        <div className="p-6 border-b border-outline-variant/10 flex justify-between items-center">
+          <h2 className="text-xl font-bold">Edit Research Posting</h2>
+          <button onClick={onClose} className="material-symbols-outlined">close</button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1.5 ml-1">Title</label>
-            <input
-              type="text"
-              required
-              className="w-full bg-surface-container-highest border border-outline-variant/30 rounded-lg px-4 py-2.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-              value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
-            />
-          </div>
-
+          <input
+            className="w-full p-3 rounded bg-surface-variant/20 border border-outline-variant/30"
+            placeholder="Title"
+            value={formData.title}
+            onChange={(e) => setFormData({...formData, title: e.target.value})}
+          />
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1.5 ml-1">Department</label>
-              <input
-                type="text"
-                required
-                className="w-full bg-surface-container-highest border border-outline-variant/30 rounded-lg px-4 py-2.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                value={formData.department}
-                onChange={(e) => setFormData({...formData, department: e.target.value})}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1.5 ml-1">Capacity</label>
-              <input
-                type="number"
-                className="w-full bg-surface-container-highest border border-outline-variant/30 rounded-lg px-4 py-2.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                value={formData.capacity}
-                onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value)})}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1.5 ml-1">Required Major</label>
             <input
-              type="text"
-              className="w-full bg-surface-container-highest border border-outline-variant/30 rounded-lg px-4 py-2.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-              value={formData.requiredMajor}
-              onChange={(e) => setFormData({...formData, requiredMajor: e.target.value})}
+              className="p-3 rounded bg-surface-variant/20 border border-outline-variant/30"
+              placeholder="Department"
+              value={formData.department}
+              onChange={(e) => setFormData({...formData, department: e.target.value})}
+            />
+            <input
+              type="number"
+              className="p-3 rounded bg-surface-variant/20 border border-outline-variant/30"
+              placeholder="Capacity"
+              value={formData.capacity}
+              onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value) || 0})}
             />
           </div>
-
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1.5 ml-1">Description</label>
-            <textarea
-              rows={4}
-              className="w-full bg-surface-container-highest border border-outline-variant/30 rounded-lg px-4 py-2.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none"
-              value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-            ></textarea>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-3 justify-end mt-8">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-2.5 rounded-full text-sm font-bold text-on-surface hover:bg-surface-container-highest transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-8 py-2.5 bg-primary text-on-primary rounded-full text-sm font-bold shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
-            >
+          <input
+            className="w-full p-3 rounded bg-surface-variant/20 border border-outline-variant/30"
+            placeholder="Required Major"
+            value={formData.requiredMajor}
+            onChange={(e) => setFormData({...formData, requiredMajor: e.target.value})}
+          />
+          <textarea
+            rows={4}
+            className="w-full p-3 rounded bg-surface-variant/20 border border-outline-variant/30 resize-none"
+            placeholder="Description"
+            value={formData.description}
+            onChange={(e) => setFormData({...formData, description: e.target.value})}
+          />
+          <div className="flex gap-4 pt-4">
+            <button type="button" onClick={onClose} className="flex-1 py-2 border border-outline-variant rounded font-bold">Cancel</button>
+            <button type="submit" disabled={loading} className="flex-1 py-2 bg-primary text-white rounded font-bold">
               {loading ? 'Saving...' : 'Save Changes'}
             </button>
           </div>

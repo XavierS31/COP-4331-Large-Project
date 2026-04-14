@@ -263,6 +263,47 @@ app.delete('/api/delete/student', verifyToken, async (req, res, next) => {
   res.status(200).json(ret);
 });
 
+app.patch('/api/postings/:id', verifyToken, async (req, res) => {
+  // 1. Safety check: only faculty can edit postings
+  if (req.user.userType !== 'faculty') {
+    return res.status(403).json({ error: 'Only faculty can edit postings' });
+  }
+
+  const { title, description, requiredMajor, capacity, department } = req.body;
+  const updateFields = {};
+
+  // 2. Map fields only if they are provided in the request
+  if (title) updateFields.title = title;
+  if (description) updateFields.description = description;
+  if (requiredMajor) updateFields.requiredMajor = requiredMajor;
+  if (department) updateFields.department = department;
+  
+  // Use undefined check so that '0' is treated as a valid value
+  if (capacity !== undefined) updateFields.capacity = Number(capacity);
+
+  try {
+    const db = client.db('researchportal');
+    
+    // 3. Perform the update with an ownership check
+    const result = await db.collection('postings').updateOne(
+      { 
+        _id: new ObjectId(req.params.id), 
+        facultyUsername: req.user.username // Verification: User must own the posting
+      },
+      { $set: updateFields }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Posting not found or unauthorized' });
+    }
+
+    // 4. Return success and the new token
+    res.status(200).json({ message: 'Update successful', token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
 app.delete('/api/delete/faculty', verifyToken, async (req, res, next) => {
   // outgoing: error
 
