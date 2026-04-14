@@ -92,7 +92,7 @@ app.post('/api/signup/student', async (req, res) => {
     });
 
     const verifyLink = `${process.env.BASE_URL}/api/verify-email?token=${vToken}`;
-    
+
     // Step 2: Send via SendGrid API
     await sgMail.send({
       to: ucfEmail,
@@ -123,7 +123,7 @@ app.post('/api/signup/faculty', async (req, res) => {
     });
 
     const verifyLink = `${process.env.BASE_URL}/api/verify-email?token=${vToken}`;
-    
+
     // Step 3: Send via SendGrid API (Fixed variable: 'email')
     await sgMail.send({
       to: email,
@@ -154,7 +154,7 @@ app.post('/api/forgot-password', async (req, res) => {
       );
 
       const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-      
+
       // Step 4: Send via SendGrid API
       await sgMail.send({
         to: email,
@@ -182,7 +182,7 @@ app.patch('/api/edit/student', verifyToken, async (req, res, next) => {
   const updateFields = {};
   if (firstName) updateFields.firstName = firstName;
   if (lastName) updateFields.lastName = lastName;
-  if (password) updateFields.password = password;
+  if (password) updateFields.password = await bcrypt.hash(password, 10);
   if (ucfEmail) updateFields.ucfEmail = ucfEmail;
   if (major) updateFields.major = major;
   if (college) updateFields.college = college;
@@ -425,7 +425,7 @@ app.post('/api/applications/create', verifyToken, async (req, res, next) => {
 
   // Only allow students to create applications
   if (req.user.userType !== 'student') {
-    return res.status(403).json({ error: 'Only students can create applications', token: req.newToken });
+    return res.status(403).json({ error: 'Only students can create applications' });
   }
 
   const { researchId, statement, message } = req.body;
@@ -443,25 +443,14 @@ app.post('/api/applications/create', verifyToken, async (req, res, next) => {
 
   try {
     const db = client.db('researchportal');
-    const { ObjectId } = require('mongodb');
 
-    // Get student's _id
+    // 1. Get student profile for info
     const student = await db.collection('students').findOne({ username: req.user.username });
-
     if (!student) {
-      error = "Student not found";
-      return res.status(200).json({ error: error, token: req.newToken });
+      return res.status(404).json({ error: "Student not found" });
     }
 
-    // Verify research post exists
-    const research = await db.collection('postings').findOne({ _id: new ObjectId(researchId) });
-
-    if (!research) {
-      error = "Posting not found";
-      return res.status(200).json({ error: error, token: req.newToken });
-    }
-
-    // Create new application linked to student and research post
+    // 2. Create the application object
     const newApplication = {
       researchId: new ObjectId(researchId),
       studentId: student._id,
@@ -471,11 +460,17 @@ app.post('/api/applications/create', verifyToken, async (req, res, next) => {
       appliedAt: appliedAt
     };
 
+    // 3. Insert the application
     const result = await db.collection('applications').insertOne(newApplication);
 
-    var ret = {
-      error: error,
-      application: newApplication,
+    // 4. CRITICAL FIX: Increment the applicantCount in the postings collection
+    await db.collection('postings').updateOne(
+      { _id: new ObjectId(researchId) },
+      { $inc: { applicantCount: 1 } } // This adds 1 to the existing count
+    );
+
+    res.status(200).json({
+      message: "Application submitted!",
       applicationId: result.insertedId,
       token: req.newToken
     };

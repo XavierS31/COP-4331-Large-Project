@@ -13,9 +13,11 @@ export interface ResearchPosting {
 interface ResearchCardProps {
   posting: ResearchPosting;
   variant?: 'featured' | 'standard';
+  onApply: (posting: ResearchPosting) => void; // 1. Added to interface
 }
 
-export const ResearchCard: React.FC<ResearchCardProps> = ({ posting, variant = 'standard' }) => {
+// 2. Added onApply to the destructuring here
+export const ResearchCard: React.FC<ResearchCardProps> = ({ posting, variant = 'standard', onApply }) => {
   if (variant === 'featured') {
     return (
       <article className="xl:col-span-2 group bg-surface-container-lowest p-8 flex flex-col md:flex-row gap-8 transition-all hover:bg-surface-container-low hover:translate-x-1">
@@ -47,7 +49,11 @@ export const ResearchCard: React.FC<ResearchCardProps> = ({ posting, variant = '
             </div>
             <div className="pt-6 flex items-center justify-between">
               <span className="font-label text-xs text-primary font-bold">MAJOR: {posting.requiredMajor?.toUpperCase()}</span>
-              <button className="bg-primary-container text-on-primary-fixed px-6 py-2.5 rounded-md font-body font-bold text-sm hover:brightness-105 active:scale-95 transition-all">
+              {/* Added onClick here */}
+              <button 
+                onClick={() => onApply(posting)}
+                className="bg-primary-container text-on-primary-fixed px-6 py-2.5 rounded-md font-body font-bold text-sm hover:brightness-105 active:scale-95 transition-all"
+              >
                 Apply Now
               </button>
             </div>
@@ -82,7 +88,11 @@ export const ResearchCard: React.FC<ResearchCardProps> = ({ posting, variant = '
             </span>
             <button className="italic font-headline text-primary text-sm hover:underline">View Details</button>
           </div>
-          <button className="w-full mt-4 bg-primary-container text-on-primary-fixed py-2 rounded-md font-body font-bold text-sm hover:brightness-105 active:scale-95 transition-all">
+          {/* Added onClick here */}
+          <button 
+            onClick={() => onApply(posting)}
+            className="w-full mt-4 bg-primary-container text-on-primary-fixed py-2 rounded-md font-body font-bold text-sm hover:brightness-105 active:scale-95 transition-all"
+          >
             Apply Now
           </button>
         </div>

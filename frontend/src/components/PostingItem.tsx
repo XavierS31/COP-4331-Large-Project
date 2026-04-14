@@ -2,17 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { useAuth } from '../context/AuthContext';
+import { EditPostingModal } from './EditPostingModal';
+import { ApplicationReviewModal } from './ApplicationReviewModal'; // New Import
 
 // Step 1: Define your application name/domain 
 const app_name = 'cop4331-11-domain.xyz';
 
-// Step 2: Add the buildPath function to handle environment switching [cite: 14-15]
+// Step 2: Add the buildPath function to handle environment switching
 function buildPath(route: string): string {
   if (import.meta.env.MODE !== 'development') {
-    // Remote path for production [cite: 16-19]
     return 'http://' + app_name + ':5000/' + route;
   } else {
-    // Local path for development [cite: 20-23]
     return 'http://localhost:5000/' + route;
   }
 }
@@ -34,6 +34,9 @@ interface PostingItemProps {
 export const PostingItem: React.FC<PostingItemProps> = ({ posting, onDeleted }) => {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isAppModalOpen, setAppModalOpen] = useState(false); // State for Review Modal
+  
   const { token, refreshToken } = useAuth();
   const menuRef = useRef<HTMLDivElement>(null);
   
@@ -49,7 +52,6 @@ export const PostingItem: React.FC<PostingItemProps> = ({ posting, onDeleted }) 
 
   const handleDelete = async () => {
     try {
-      // Step 3: Update fetch to use buildPath instead of hardcoded localhost [cite: 29-33]
       const response = await fetch(buildPath(`api/postings/${posting._id}`), {
         method: 'DELETE',
         headers: {
@@ -58,7 +60,6 @@ export const PostingItem: React.FC<PostingItemProps> = ({ posting, onDeleted }) 
       });
       const data = await response.json();
       
-      // Update token if rotated
       if (data.token) {
         refreshToken(data.token);
       }
@@ -99,8 +100,13 @@ export const PostingItem: React.FC<PostingItemProps> = ({ posting, onDeleted }) 
             </p>
           </div>
         </div>
+        
         <div className="flex items-center gap-8">
-          <div className="text-right">
+          {/* APPLICANT COUNT BUTTON: Opens the Review Modal */}
+          <button 
+            onClick={() => setAppModalOpen(true)}
+            className="text-right hover:bg-primary/5 p-3 rounded-xl transition-all group/btn border border-transparent hover:border-primary/10 active:scale-95"
+          >
             <div className="flex items-center gap-2 justify-end mb-1">
               {posting.newApplicants && posting.newApplicants > 0 ? (
                 <span className="bg-primary text-on-primary text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-tighter">
@@ -108,9 +114,11 @@ export const PostingItem: React.FC<PostingItemProps> = ({ posting, onDeleted }) 
                 </span>
               ) : null}
               <span className="text-lg font-headline font-black text-on-surface">{posting.applicantCount || 0}</span>
+              <span className="material-symbols-outlined text-primary text-sm opacity-0 group-hover/btn:opacity-100 transition-opacity">visibility</span>
             </div>
-            <p className="text-[10px] font-label uppercase tracking-widest text-on-surface-variant opacity-60">Total Applicants</p>
-          </div>
+            <p className="text-[10px] font-label uppercase tracking-widest text-on-surface-variant opacity-60">View Applicants</p>
+          </button>
+
           <div className="relative" ref={menuRef}>
             <button 
               onClick={() => setMenuOpen(!isMenuOpen)}
@@ -119,13 +127,24 @@ export const PostingItem: React.FC<PostingItemProps> = ({ posting, onDeleted }) 
               <span className="material-symbols-outlined select-none">more_vert</span>
             </button>
             {isMenuOpen && (
-              <div className="absolute right-0 top-12 w-32 bg-surface shadow-xl rounded-md border border-outline-variant/20 z-10 overflow-hidden">
+              <div className="absolute right-0 top-12 w-40 bg-surface shadow-2xl rounded-md border border-outline-variant/20 z-10 overflow-hidden py-1">
+                <button 
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setEditModalOpen(true);
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-on-surface hover:bg-primary/10 transition-colors flex items-center gap-2 font-medium"
+                >
+                  <span className="material-symbols-outlined text-sm select-none">edit</span>
+                  Edit Posting
+                </button>
+                
                 <button 
                   onClick={() => {
                     setMenuOpen(false);
                     setDeleteModalOpen(true);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm text-error hover:bg-error/10 transition-colors flex items-center gap-2 font-bold"
+                  className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-error/10 transition-colors flex items-center gap-2 font-bold"
                 >
                   <span className="material-symbols-outlined text-sm select-none">delete</span>
                   Delete
@@ -135,12 +154,32 @@ export const PostingItem: React.FC<PostingItemProps> = ({ posting, onDeleted }) 
           </div>
         </div>
       </div>
+
+      {/* --- MODALS --- */}
+
+      {/* 1. Delete Confirmation */}
       <DeleteConfirmModal 
         isOpen={isDeleteModalOpen}
         title="Delete Posting"
         message={`Are you sure you want to delete "${posting.title}"? This cannot be undone.`}
         onConfirm={handleDelete}
         onCancel={() => setDeleteModalOpen(false)}
+      />
+
+      {/* 2. Edit Posting Details */}
+      <EditPostingModal 
+        isOpen={isEditModalOpen}
+        posting={posting}
+        onClose={() => setEditModalOpen(false)}
+        onUpdated={onDeleted} 
+      />
+
+      {/* 3. Review Applications List */}
+      <ApplicationReviewModal 
+        isOpen={isAppModalOpen}
+        onClose={() => setAppModalOpen(false)}
+        postingId={posting._id}
+        postingTitle={posting.title}
       />
     </>
   );
