@@ -7,6 +7,7 @@ import 'screens/student_dashboard_screen.dart';
 import 'screens/faculty_dashboard_screen.dart';
 import 'screens/card_detail_screen.dart';
 import 'screens/faculty_applications_screen.dart';
+import 'screens/student_applications_screen.dart';
 import 'theme/app_theme.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -41,6 +42,7 @@ class ResearchFinderApp extends StatelessWidget {
         '/faculty-dashboard': (_) => const FacultyDashboardScreen(), // Fallback
         '/card': (_) => const CardDetailScreen(),
         '/faculty-applications': (_) => const FacultyApplicationsScreen(),
+        '/student-applications': (_) => const StudentApplicationsScreen(),
       },
     );
   }

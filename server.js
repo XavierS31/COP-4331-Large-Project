@@ -473,8 +473,7 @@ app.post('/api/applications/create', verifyToken, async (req, res, next) => {
       message: "Application submitted!",
       applicationId: result.insertedId,
       token: req.newToken
-    };
-    res.status(200).json(ret);
+    });
   } catch (e) {
     error = e.toString();
     var ret = { error: error, token: req.newToken };
@@ -515,7 +514,8 @@ app.get('/api/applications/posting/:id', verifyToken, async (req, res) => {
       const s = studentMap.get(a.studentId?.toString());
       return {
         _id: a._id,
-        status: a.status,
+        status: a.status || 'pending',
+        nextSteps: a.nextSteps || '',
         message: a.message || a.statement || '',
         appliedAt: a.appliedAt,
         student: s ? {
@@ -529,6 +529,134 @@ app.get('/api/applications/posting/:id', verifyToken, async (req, res) => {
     });
 
     res.status(200).json({ applications: enriched, token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString(), token: req.newToken });
+  }
+});
+
+app.get('/api/applications/mine', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'student') {
+    return res.status(403).json({ error: 'Only students can view their applications', token: req.newToken });
+  }
+
+  try {
+    const db = client.db('researchportal');
+
+    const student = await db.collection('students').findOne({ username: req.user.username });
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found', token: req.newToken });
+    }
+
+    const applications = await db.collection('applications')
+      .find({ studentId: student._id })
+      .sort({ appliedAt: -1 })
+      .toArray();
+
+    const researchIds = applications.map(a => a.researchId).filter(Boolean);
+    const postings = researchIds.length
+      ? await db.collection('postings').find({ _id: { $in: researchIds } }).toArray()
+      : [];
+    const postingMap = new Map(postings.map(p => [p._id.toString(), p]));
+
+    const enriched = applications.map(a => {
+      const p = postingMap.get(a.researchId?.toString());
+      return {
+        _id: a._id,
+        researchId: a.researchId,
+        status: a.status || 'pending',
+        nextSteps: a.nextSteps || '',
+        message: a.message || a.statement || '',
+        appliedAt: a.appliedAt,
+        posting: p ? {
+          _id: p._id,
+          title: p.title || '',
+          department: p.department || '',
+          requiredMajor: p.requiredMajor || '',
+          description: p.description || '',
+        } : null,
+      };
+    });
+
+    res.status(200).json({ applications: enriched, token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString(), token: req.newToken });
+  }
+});
+
+app.put('/api/applications/:id/status', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'faculty') {
+    return res.status(403).json({ error: 'Only faculty can update application status', token: req.newToken });
+  }
+
+  const { status, nextSteps } = req.body;
+  const allowed = ['pending', 'accepted', 'rejected'];
+  if (!status || !allowed.includes(status)) {
+    return res.status(400).json({ error: 'Invalid status', token: req.newToken });
+  }
+
+  try {
+    const db = client.db('researchportal');
+    const applicationId = new ObjectId(req.params.id);
+
+    const application = await db.collection('applications').findOne({ _id: applicationId });
+    if (!application) {
+      return res.status(404).json({ error: 'Application not found', token: req.newToken });
+    }
+
+    const posting = await db.collection('postings').findOne({ _id: application.researchId });
+    if (!posting || posting.facultyUsername !== req.user.username) {
+      return res.status(403).json({ error: 'Not authorized to update this application', token: req.newToken });
+    }
+
+    const update = {
+      status: status,
+      nextSteps: typeof nextSteps === 'string' ? nextSteps : '',
+    };
+
+    await db.collection('applications').updateOne(
+      { _id: applicationId },
+      { $set: update }
+    );
+
+    const updated = await db.collection('applications').findOne({ _id: applicationId });
+    res.status(200).json({ application: updated, token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString(), token: req.newToken });
+  }
+});
+
+app.delete('/api/applications/:id', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'student') {
+    return res.status(403).json({ error: 'Only students can withdraw applications', token: req.newToken });
+  }
+
+  try {
+    const db = client.db('researchportal');
+
+    const student = await db.collection('students').findOne({ username: req.user.username });
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found', token: req.newToken });
+    }
+
+    const applicationId = new ObjectId(req.params.id);
+    const application = await db.collection('applications').findOne({ _id: applicationId });
+    if (!application) {
+      return res.status(404).json({ error: 'Application not found', token: req.newToken });
+    }
+    if (application.studentId.toString() !== student._id.toString()) {
+      return res.status(403).json({ error: 'Not authorized to withdraw this application', token: req.newToken });
+    }
+
+    await db.collection('applications').deleteOne({ _id: applicationId });
+
+    if (application.researchId) {
+      await db.collection('postings').updateOne(
+        { _id: application.researchId },
+        { $inc: { applicantCount: -1 } }
+      );
+    }
+
+    res.status(200).json({ token: req.newToken });
   } catch (e) {
     res.status(500).json({ error: e.toString(), token: req.newToken });
   }

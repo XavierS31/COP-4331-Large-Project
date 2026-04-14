@@ -6,21 +6,94 @@ import '../services/applications_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/toast.dart';
 
-class CardDetailScreen extends StatelessWidget {
+class CardDetailScreen extends StatefulWidget {
   const CardDetailScreen({super.key});
 
-  Future<void> _showApplyModal(BuildContext context, Posting posting) async {
-    await showModalBottomSheet(
+  @override
+  State<CardDetailScreen> createState() => _CardDetailScreenState();
+}
+
+class _CardDetailScreenState extends State<CardDetailScreen> {
+  Posting? _posting;
+  bool _initialized = false;
+  bool _isLoading = true;
+  String? _appliedApplicationId;
+  bool _isWithdrawing = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
+    _posting = ModalRoute.of(context)!.settings.arguments as Posting;
+    _checkAppliedState();
+  }
+
+  Future<void> _checkAppliedState() async {
+    final auth = context.read<AuthProvider>();
+    if (auth.user?.userType != 'student') {
+      if (mounted) setState(() => _isLoading = false);
+      return;
+    }
+    try {
+      final apps = await ApplicationsService.getMyApplications(auth.authHeaders);
+      if (!mounted) return;
+      String? foundId;
+      for (final a in apps) {
+        final rid = (a['researchId'] ?? a['posting']?['_id'])?.toString();
+        if (rid == _posting!.id) {
+          foundId = a['_id']?.toString();
+          break;
+        }
+      }
+      setState(() {
+        _appliedApplicationId = foundId;
+        _isLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _showApplyModal() async {
+    final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      builder: (ctx) => _ApplyMessageSheet(posting: posting),
+      builder: (ctx) => _ApplyMessageSheet(posting: _posting!),
     );
+    if (result == true && mounted) {
+      await _checkAppliedState();
+    }
+  }
+
+  Future<void> _withdraw() async {
+    if (_appliedApplicationId == null) return;
+    setState(() => _isWithdrawing = true);
+    final auth = context.read<AuthProvider>();
+    try {
+      await ApplicationsService.withdrawApplication(
+        _appliedApplicationId!,
+        auth.authHeaders,
+      );
+      if (!mounted) return;
+      setState(() {
+        _appliedApplicationId = null;
+        _isWithdrawing = false;
+      });
+      Toast.success(context, 'Application withdrawn');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isWithdrawing = false);
+      Toast.error(context, e.toString().replaceAll('Exception: ', ''));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final posting = ModalRoute.of(context)!.settings.arguments as Posting;
     final theme = Theme.of(context);
+    final posting = _posting!;
+    final isApplied = _appliedApplicationId != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -35,12 +108,40 @@ class CardDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      posting.title,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary,
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            posting.title,
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                        if (isApplied) ...[
+                          const SizedBox(width: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer,
+                              borderRadius: const BorderRadius.all(AppRadii.full),
+                            ),
+                            child: Text(
+                              'APPLIED',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onPrimaryContainer,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -82,13 +183,50 @@ class CardDetailScreen extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 height: 56,
-                child: ElevatedButton(
-                  onPressed: () => _showApplyModal(context, posting),
-                  child: const Text(
-                    'Apply Now',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
+                child: _isLoading
+                    ? const Center(
+                        child: SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2.5),
+                        ),
+                      )
+                    : isApplied
+                        ? OutlinedButton(
+                            onPressed: _isWithdrawing ? null : _withdraw,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: theme.colorScheme.error,
+                              side: BorderSide(
+                                color: theme.colorScheme.error,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: _isWithdrawing
+                                ? const SizedBox(
+                                    height: 22,
+                                    width: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Withdraw Application',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          )
+                        : ElevatedButton(
+                            onPressed: _showApplyModal,
+                            child: const Text(
+                              'Apply Now',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
               ),
             ),
           ],
@@ -130,8 +268,7 @@ class _ApplyMessageSheetState extends State<_ApplyMessageSheet> {
       );
       if (!mounted) return;
       Toast.success(context, 'Application submitted!');
-      Navigator.pop(context); // close sheet
-      Navigator.pop(context); // return to list
+      Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);

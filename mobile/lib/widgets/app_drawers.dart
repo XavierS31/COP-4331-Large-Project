@@ -8,7 +8,9 @@ class StudentDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final username = auth.user?.username ?? 'Student';
+    final firstName = (auth.user?.firstName.isNotEmpty ?? false)
+        ? auth.user!.firstName
+        : 'Student';
 
     return Drawer(
       child: ListView(
@@ -28,7 +30,7 @@ class StudentDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Welcome, $username',
+                  'Welcome, $firstName',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -57,7 +59,7 @@ class StudentDrawer extends StatelessWidget {
             title: const Text('My Applications'),
             onTap: () {
               Navigator.pop(context);
-              // Handle Navigation placeholder
+              Navigator.pushNamed(context, '/student-applications');
             },
           ),
         ],
@@ -73,7 +75,9 @@ class FacultyDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final auth = context.watch<AuthProvider>();
-    final username = auth.user?.username ?? 'Faculty';
+    final firstName = (auth.user?.firstName.isNotEmpty ?? false)
+        ? auth.user!.firstName
+        : 'Faculty';
 
     return Drawer(
       child: ListView(
@@ -93,7 +97,7 @@ class FacultyDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Welcome, $username',
+                  'Welcome, $firstName',
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -115,14 +119,6 @@ class FacultyDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               Navigator.pushReplacementNamed(context, '/dashboard/faculty');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.people),
-            title: const Text('Review Applicants'),
-            onTap: () {
-              Navigator.pop(context);
-              // Handle Navigation placeholder
             },
           ),
           ListTile(

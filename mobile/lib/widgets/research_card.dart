@@ -48,7 +48,7 @@ class ResearchCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: ElevatedButton(
               onPressed: () {
-                // Apply now logic placeholder
+                Navigator.pushNamed(context, '/card', arguments: posting);
               },
               child: const Text('Apply Now'),
             ),
