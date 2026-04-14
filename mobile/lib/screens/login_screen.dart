@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/branding_panel.dart';
+import '../widgets/page_title.dart';
+import '../widgets/toast.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,103 +31,120 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
     if (ok) {
       final route = auth.user?.userType == 'faculty'
-          ? '/faculty-dashboard'
-          : '/student-dashboard';
+          ? '/dashboard/faculty'
+          : '/dashboard/student';
       Navigator.pushReplacementNamed(context, route);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(auth.errorMessage ?? 'Login failed.'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      Toast.error(context, auth.errorMessage ?? 'Login failed.');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Form(
-              key: _formKey,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
               child: Column(
                 children: [
-                  const Text(
-                    'Research Finder',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFffc909),
+                  const BrandingPanel(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 32,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Sign in to your account',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                  const SizedBox(height: 40),
-                  TextFormField(
-                    controller: _usernameCtrl,
-                    decoration: const InputDecoration(labelText: 'Username'),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Username required' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _passwordCtrl,
-                    obscureText: _obscure,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscure ? Icons.visibility_off : Icons.visibility,
-                          color: Colors.white54,
-                        ),
-                        onPressed: () => setState(() => _obscure = !_obscure),
-                      ),
-                    ),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Password required' : null,
-                  ),
-                  const SizedBox(height: 24),
-                  if (auth.errorMessage != null && auth.errorMessage!.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Text(
-                        auth.errorMessage!,
-                        style: const TextStyle(color: Colors.redAccent),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: auth.isLoading ? null : _submit,
-                      child: auth.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.black,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const PageTitle(title: 'Welcome Back'),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Sign in to explore research opportunities.',
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 40),
+                          TextFormField(
+                            controller: _usernameCtrl,
+                            textInputAction: TextInputAction.next,
+                            decoration: const InputDecoration(
+                              labelText: 'Username',
+                              prefixIcon: Icon(Icons.person_outline),
+                            ),
+                            validator: (v) => v == null || v.isEmpty
+                                ? 'Username required'
+                                : null,
+                          ),
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            controller: _passwordCtrl,
+                            obscureText: _obscure,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _submit(),
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscure
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () =>
+                                    setState(() => _obscure = !_obscure),
                               ),
-                            )
-                          : const Text('Login',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () =>
-                        Navigator.pushNamed(context, '/register'),
-                    child: const Text(
-                      "Don't have an account? Register",
-                      style: TextStyle(color: Color(0xFFffc909)),
+                            ),
+                            validator: (v) => v == null || v.isEmpty
+                                ? 'Password required'
+                                : null,
+                          ),
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: auth.isLoading ? null : _submit,
+                              child: auth.isLoading
+                                  ? const SizedBox(
+                                      height: 22,
+                                      width: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                      ),
+                                    )
+                                  : Text(
+                                      'LOG IN',
+                                      style: theme.textTheme.labelLarge
+                                          ?.copyWith(
+                                        color: theme.colorScheme.onPrimary,
+                                        letterSpacing: 1.5,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Don't have an account?",
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pushNamed(
+                                    context, '/register'),
+                                child: const Text('Register'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

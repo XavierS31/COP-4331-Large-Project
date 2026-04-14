@@ -420,7 +420,7 @@ app.delete('/api/postings/:id', verifyToken, async (req, res) => {
 
 
 app.post('/api/applications/create', verifyToken, async (req, res, next) => {
-  // incoming: researchId, statement (optional: status, appliedAt)
+  // incoming: researchId, message (or statement for backward compat), optional: status, appliedAt
   // outgoing: error, application object, newToken
 
   // Only allow students to create applications
@@ -428,15 +428,16 @@ app.post('/api/applications/create', verifyToken, async (req, res, next) => {
     return res.status(403).json({ error: 'Only students can create applications', token: req.newToken });
   }
 
-  const { researchId, statement } = req.body;
+  const { researchId, statement, message } = req.body;
+  const applicantMessage = message || statement;
   const status = req.body.status || 'pending';
   const appliedAt = req.body.appliedAt || new Date().toISOString().split('T')[0];
 
   var error = '';
 
   // Validate required fields
-  if (!researchId || !statement) {
-    error = "researchId and statement are required";
+  if (!researchId || !applicantMessage) {
+    error = "researchId and message are required";
     return res.status(200).json({ error: error, token: req.newToken });
   }
 
@@ -465,7 +466,8 @@ app.post('/api/applications/create', verifyToken, async (req, res, next) => {
       researchId: new ObjectId(researchId),
       studentId: student._id,
       status: status,
-      statement: statement,
+      message: applicantMessage,
+      statement: applicantMessage,
       appliedAt: appliedAt
     };
 
@@ -482,6 +484,58 @@ app.post('/api/applications/create', verifyToken, async (req, res, next) => {
     error = e.toString();
     var ret = { error: error, token: req.newToken };
     res.status(200).json(ret);
+  }
+});
+
+app.get('/api/applications/posting/:id', verifyToken, async (req, res) => {
+  // outgoing: applications[], token
+  if (req.user.userType !== 'faculty') {
+    return res.status(403).json({ error: 'Only faculty can view applicants', token: req.newToken });
+  }
+
+  try {
+    const db = client.db('researchportal');
+    const postingId = new ObjectId(req.params.id);
+
+    const posting = await db.collection('postings').findOne({ _id: postingId });
+    if (!posting) {
+      return res.status(404).json({ error: 'Posting not found', token: req.newToken });
+    }
+    if (posting.facultyUsername !== req.user.username) {
+      return res.status(403).json({ error: 'Not authorized to view these applicants', token: req.newToken });
+    }
+
+    const applications = await db.collection('applications')
+      .find({ researchId: postingId })
+      .sort({ appliedAt: -1 })
+      .toArray();
+
+    const studentIds = applications.map(a => a.studentId).filter(Boolean);
+    const students = studentIds.length
+      ? await db.collection('students').find({ _id: { $in: studentIds } }).toArray()
+      : [];
+    const studentMap = new Map(students.map(s => [s._id.toString(), s]));
+
+    const enriched = applications.map(a => {
+      const s = studentMap.get(a.studentId?.toString());
+      return {
+        _id: a._id,
+        status: a.status,
+        message: a.message || a.statement || '',
+        appliedAt: a.appliedAt,
+        student: s ? {
+          firstName: s.firstName || '',
+          lastName: s.lastName || '',
+          username: s.username || '',
+          ucfEmail: s.ucfEmail || '',
+          major: s.major || '',
+        } : null,
+      };
+    });
+
+    res.status(200).json({ applications: enriched, token: req.newToken });
+  } catch (e) {
+    res.status(500).json({ error: e.toString(), token: req.newToken });
   }
 });
 

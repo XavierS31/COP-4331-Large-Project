@@ -5,6 +5,11 @@ import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/student_dashboard_screen.dart';
 import 'screens/faculty_dashboard_screen.dart';
+import 'screens/card_detail_screen.dart';
+import 'screens/faculty_applications_screen.dart';
+import 'theme/app_theme.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   runApp(
@@ -21,56 +26,21 @@ class ResearchFinderApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Research Finder',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: Colors.black,
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFffc909),
-          onPrimary: Colors.black,
-          surface: Color(0xFF1a1a1a),
-          onSurface: Colors.white,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.black,
-          foregroundColor: Color(0xFFffc909),
-          elevation: 0,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFffc909),
-            foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: const Color(0xFF1a1a1a),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Color(0xFF333333)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Color(0xFF333333)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Color(0xFFffc909)),
-          ),
-          labelStyle: const TextStyle(color: Colors.white70),
-          hintStyle: const TextStyle(color: Colors.white38),
-        ),
-      ),
-      home: const _AppEntry(),
+      theme: AppTheme.lightTheme,
+      initialRoute: '/',
       routes: {
+        '/': (_) => const _AppEntry(),
         '/login': (_) => const LoginScreen(),
         '/register': (_) => const RegisterScreen(),
+        '/dashboard/student': (_) => const StudentDashboardScreen(),
         '/student-dashboard': (_) => const StudentDashboardScreen(),
-        '/faculty-dashboard': (_) => const FacultyDashboardScreen(),
+        '/dashboard/faculty': (_) => const FacultyDashboardScreen(),
+        '/faculty-dashboard': (_) => const FacultyDashboardScreen(), // Fallback
+        '/card': (_) => const CardDetailScreen(),
+        '/faculty-applications': (_) => const FacultyApplicationsScreen(),
       },
     );
   }
@@ -97,8 +67,8 @@ class _AppEntryState extends State<_AppEntry> {
 
     if (auth.isAuthenticated) {
       final route = auth.user?.userType == 'faculty'
-          ? '/faculty-dashboard'
-          : '/student-dashboard';
+          ? '/dashboard/faculty'
+          : '/dashboard/student';
       Navigator.pushReplacementNamed(context, route);
     } else {
       Navigator.pushReplacementNamed(context, '/login');
@@ -108,9 +78,8 @@ class _AppEntryState extends State<_AppEntry> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: Colors.black,
       body: Center(
-        child: CircularProgressIndicator(color: Color(0xFFffc909)),
+        child: CircularProgressIndicator(),
       ),
     );
   }

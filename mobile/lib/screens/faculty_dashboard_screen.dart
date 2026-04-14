@@ -5,6 +5,9 @@ import 'package:http/http.dart' as http;
 import '../providers/auth_provider.dart';
 import '../models/posting.dart';
 import '../constants.dart';
+import '../widgets/app_drawers.dart';
+import '../widgets/posting_item_tile.dart';
+import '../widgets/top_nav_bar.dart';
 
 class FacultyDashboardScreen extends StatefulWidget {
   const FacultyDashboardScreen({super.key});
@@ -73,10 +76,6 @@ class _FacultyDashboardScreenState extends State<FacultyDashboardScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF1A1A1A),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (context) => _CreatePostingForm(
         onSubmit: (newPostingMap) async {
           final auth = context.read<AuthProvider>();
@@ -104,85 +103,93 @@ class _FacultyDashboardScreenState extends State<FacultyDashboardScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
-    return Scaffold(
-      backgroundColor: const Color(0xFF000000),
-      appBar: AppBar(
-        title: const Text('Faculty Dashboard', style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color(0xFF000000),
-        iconTheme: const IconThemeData(color: Colors.white),
+  void _confirmDelete(Posting posting) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Posting'),
+        content: const Text('Are you sure you want to delete this posting?'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () async {
-              await auth.logout();
-              if (context.mounted) {
-                Navigator.pushReplacementNamed(context, '/login');
-              }
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _deletePosting(posting.id);
             },
+            child: Text(
+              'Delete',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFFFFC909)))
-          : _postings.isEmpty
-              ? const Center(child: Text('No postings found.', style: TextStyle(color: Colors.white70)))
-              : ListView.builder(
-                  itemCount: _postings.length,
-                  itemBuilder: (context, index) {
-                    final posting = _postings[index];
-                    return Card(
-                      color: const Color(0xFF1A1A1A),
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: ListTile(
-                        title: Text(
-                          posting.title,
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 4.0),
-                          child: Text(
-                            '${posting.department} - ${posting.requiredMajor}\nCapacity: ${posting.capacity}',
-                            style: const TextStyle(color: Colors.white70),
-                          ),
-                        ),
-                        isThreeLine: true,
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.redAccent),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                backgroundColor: const Color(0xFF1A1A1A),
-                                title: const Text('Delete Posting', style: TextStyle(color: Colors.white)),
-                                content: const Text('Are you sure you want to delete this posting?', style: TextStyle(color: Colors.white70)),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(ctx),
-                                    child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(ctx);
-                                      _deletePosting(posting.id);
-                                    },
-                                    child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    );
-                  },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: const TopNavBar(),
+      drawer: const FacultyDrawer(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your Research Postings',
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  '${_postings.length} active ${_postings.length == 1 ? 'posting' : 'postings'}',
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _postings.isEmpty
+                    ? const Center(child: Text('No postings found.'))
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        itemCount: _postings.length,
+                        itemBuilder: (context, index) {
+                          final posting = _postings[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: PostingItemTile(
+                              posting: posting,
+                              onViewApplicants: () => Navigator.pushNamed(
+                                context,
+                                '/faculty-applications',
+                                arguments: posting,
+                              ),
+                              onDelete: () => _confirmDelete(posting),
+                            ),
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFFFFC909),
         onPressed: _showCreateDialog,
-        child: const Icon(Icons.add, color: Colors.black),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -235,7 +242,7 @@ class _CreatePostingFormState extends State<_CreatePostingForm> {
             children: [
               const Text(
                 'Create Posting',
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -251,7 +258,6 @@ class _CreatePostingFormState extends State<_CreatePostingForm> {
               const SizedBox(height: 24),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFC909),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 onPressed: _isSubmitting
@@ -270,8 +276,12 @@ class _CreatePostingFormState extends State<_CreatePostingForm> {
                         }
                       },
                 child: _isSubmitting
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
-                    : const Text('Submit', style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Submit'),
               ),
               const SizedBox(height: 24),
             ],
@@ -286,27 +296,7 @@ class _CreatePostingFormState extends State<_CreatePostingForm> {
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.white70),
-        enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.white24),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Color(0xFFFFC909)),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.redAccent),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.redAccent),
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
+      decoration: InputDecoration(labelText: label),
       validator: (value) => value == null || value.isEmpty ? 'Required' : null,
     );
   }
