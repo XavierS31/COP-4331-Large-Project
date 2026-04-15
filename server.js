@@ -138,6 +138,75 @@ app.post('/api/signup/faculty', async (req, res) => {
   }
 });
 
+// app.post('/api/forgot-password', async (req, res) => {
+//   const { email } = req.body;
+//   try {
+//     const db = client.db('researchportal');
+//     const student = await db.collection('students').findOne({ ucfEmail: email });
+//     const faculty = !student ? await db.collection('faculty').findOne({ email: email }) : null;
+//     const user = student || faculty;
+
+//     if (user) {
+//       const resetToken = crypto.randomBytes(32).toString('hex');
+//       await db.collection(student ? 'students' : 'faculty').updateOne(
+//         { _id: user._id },
+//         { $set: { resetToken, resetTokenExpiry: Date.now() + 3600000 } }
+//       );
+
+//       const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+//       // Step 4: Send via SendGrid API
+//       await sgMail.send({
+//         to: email,
+//         from: process.env.EMAIL_USER,
+//         subject: '[Research Portal] Password Reset',
+//         html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`
+//       });
+//     }
+//     res.status(200).json({ message: 'If that email exists, a reset link has been sent.' });
+//   } catch (e) {
+//     res.status(500).json({ error: e.toString() });
+//   }
+// });
+
+// app.post('/api/reset-password', async (req, res) => {
+//   const { token, newPassword } = req.body;
+
+//   try {
+//     const db = client.db('researchportal');
+//     const student = await db.collection('students').findOne({
+//       resetToken: token,
+//       resetTokenExpiry: { $gt: Date.now() }
+//     });
+
+//     const faculty = (!student) ? await db.collection('faculty').findOne({
+//       resetToken: token,
+//       resetTokenExpiry: { $gt: Date.now() }
+//     }) : null;
+
+//     const user = student || faculty;
+//     const collectionName = student ? 'students' : 'faculty';
+
+//     if (!user) {
+//       return res.status(400).json({ error: 'Invalid or expired reset token' });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+//     await db.collection(collectionName).updateOne(
+//       { _id: user._id },
+//       {
+//         $set: { password: hashedPassword },
+//         $unset: { resetToken: "", resetTokenExpiry: "" }
+//       }
+//     );
+
+//     res.status(200).json({ message: 'Password has been reset successfully' });
+//   } catch (e) {
+//     res.status(500).json({ error: e.toString() });
+//   }
+// });
+
 app.post('/api/forgot-password', async (req, res) => {
   const { email } = req.body;
   try {
@@ -145,30 +214,26 @@ app.post('/api/forgot-password', async (req, res) => {
     const student = await db.collection('students').findOne({ ucfEmail: email });
     const faculty = !student ? await db.collection('faculty').findOne({ email: email }) : null;
     const user = student || faculty;
-
     if (user) {
       const resetToken = crypto.randomBytes(32).toString('hex');
-      await db.collection(student ? 'students' : 'faculty').updateOne(
-        { _id: user._id },
-        { $set: { resetToken, resetTokenExpiry: Date.now() + 3600000 } }
-      );
-
-      const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-
-      // Step 4: Send via SendGrid API
-      await sgMail.send({
-        to: email,
-        from: process.env.EMAIL_USER,
-        subject: '[Research Portal] Password Reset',
-        html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`
-      });
+      await db.collection(student ? 'students' : 'faculty').updateOne({ _id: user._id }, { $set: { resetToken, resetTokenExpiry: Date.now() + 3600000 } });
+      await sgMail.send({ to: email, from: process.env.EMAIL_USER, subject: 'Reset Password', html: `<a href="${process.env.FRONTEND_URL}/reset-password?token=${resetToken}">Reset Here</a>` });
     }
-    res.status(200).json({ message: 'If that email exists, a reset link has been sent.' });
-  } catch (e) {
-    res.status(500).json({ error: e.toString() });
-  }
+    res.status(200).json({ message: 'If email exists, link sent.' });
+  } catch (e) { res.status(500).json({ error: e.toString() }); }
 });
 
+app.post('/api/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    const db = client.db('researchportal');
+    const student = await db.collection('students').findOne({ resetToken: token, resetTokenExpiry: { $gt: Date.now() } });
+    const faculty = (!student) ? await db.collection('faculty').findOne({ resetToken: token, resetTokenExpiry: { $gt: Date.now() } }) : null;
+    if (!student && !faculty) return res.status(400).json({ error: 'Invalid/Expired' });
+    await db.collection(student ? 'students' : 'faculty').updateOne({ _id: (student || faculty)._id }, { $set: { password: await bcrypt.hash(newPassword, 10) }, $unset: { resetToken: "", resetTokenExpiry: "" } });
+    res.status(200).json({ message: 'Reset successful' });
+  } catch (e) { res.status(500).json({ error: e.toString() }); }
+});
 app.patch('/api/edit/student', verifyToken, async (req, res, next) => {
   // incoming: any fields to update (firstName, lastName, password, ucfEmail, major, college)
   // outgoing: error
@@ -354,43 +419,6 @@ app.get('/api/search', async (req, res) => {
 
   const postings = await db.collection('postings').find(filter).sort({ createdAt: -1 }).toArray();
   res.status(200).json({ postings });
-});
-app.post('/api/reset-password', async (req, res) => {
-  const { token, newPassword } = req.body;
-
-  try {
-    const db = client.db('researchportal');
-    const student = await db.collection('students').findOne({
-      resetToken: token,
-      resetTokenExpiry: { $gt: Date.now() }
-    });
-
-    const faculty = (!student) ? await db.collection('faculty').findOne({
-      resetToken: token,
-      resetTokenExpiry: { $gt: Date.now() }
-    }) : null;
-
-    const user = student || faculty;
-    const collectionName = student ? 'students' : 'faculty';
-
-    if (!user) {
-      return res.status(400).json({ error: 'Invalid or expired reset token' });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    await db.collection(collectionName).updateOne(
-      { _id: user._id },
-      {
-        $set: { password: hashedPassword },
-        $unset: { resetToken: "", resetTokenExpiry: "" }
-      }
-    );
-
-    res.status(200).json({ message: 'Password has been reset successfully' });
-  } catch (e) {
-    res.status(500).json({ error: e.toString() });
-  }
 });
 
 
