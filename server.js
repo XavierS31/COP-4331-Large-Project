@@ -742,4 +742,8 @@ async function start() {
     process.exit(1);
   }
 }
-start();
+
+if (process.env.NODE_ENV !== 'test') {
+  start();
+}
+module.exports = { app, client };
