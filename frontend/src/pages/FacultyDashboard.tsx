@@ -69,10 +69,10 @@ export const FacultyDashboard: React.FC = () => {
         <header className="fixed top-0 right-0 left-64 h-16 bg-[#f9f9f7]/80 dark:bg-[#1a1c1b]/80 backdrop-blur-md z-30 flex justify-between items-center px-8 border-none">
           <h1 className="font-headline font-black text-xl text-on-surface tracking-tight">Active Research Postings</h1>
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-4 text-on-surface-variant">
+            {/* <div className="flex items-center gap-4 text-on-surface-variant">
               <span className="material-symbols-outlined cursor-pointer hover:text-primary transition-colors select-none">notifications</span>
               <span className="material-symbols-outlined cursor-pointer hover:text-primary transition-colors select-none">help_outline</span>
-            </div>
+            </div> */}
             <div className="h-8 w-[1px] bg-outline-variant opacity-20"></div>
             <div className="flex items-center gap-3">
               <button onClick={logout} className="text-sm font-bold text-red-600 hover:text-red-800 transition-colors mx-4">Sign Out</button>

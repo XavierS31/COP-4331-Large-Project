@@ -27,14 +27,14 @@ export const FacultySidebar: React.FC<FacultySidebarProps> = ({ onCreateClick })
           <span className="material-symbols-outlined select-none">description</span>
           My Postings
         </a>
-        <a className="text-on-surface opacity-60 flex items-center gap-3 px-4 py-3 font-body text-sm tracking-wide hover:bg-surface-variant transition-colors rounded-l-lg flex-1 cursor-pointer" onClick={(e) => { e.preventDefault(); toast('Feature coming soon!', { icon: '🚧' }); }}>
+        {/* <a className="text-on-surface opacity-60 flex items-center gap-3 px-4 py-3 font-body text-sm tracking-wide hover:bg-surface-variant transition-colors rounded-l-lg flex-1 cursor-pointer" onClick={(e) => { e.preventDefault(); toast('Feature coming soon!', { icon: '🚧' }); }}>
           <span className="material-symbols-outlined select-none">rate_review</span>
           Review Applications
-        </a>
-        <a className="text-on-surface opacity-60 flex items-center gap-3 px-4 py-3 font-body text-sm tracking-wide hover:bg-surface-variant transition-colors rounded-l-lg flex-1 cursor-pointer" onClick={(e) => { e.preventDefault(); toast('Feature coming soon!', { icon: '🚧' }); }}>
+        </a> */}
+        {/* <a className="text-on-surface opacity-60 flex items-center gap-3 px-4 py-3 font-body text-sm tracking-wide hover:bg-surface-variant transition-colors rounded-l-lg flex-1 cursor-pointer" onClick={(e) => { e.preventDefault(); toast('Feature coming soon!', { icon: '🚧' }); }}>
           <span className="material-symbols-outlined select-none">settings</span>
           Settings
-        </a>
+        </a> */}
       </nav>
       <div className="mt-auto px-2">
         <button

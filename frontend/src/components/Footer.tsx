@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
           © {new Date().getFullYear()} Knight Lab. All rights reserved.
         </p>
       </div>
-      <div className="flex flex-wrap justify-center gap-8 font-body text-sm tracking-wide uppercase">Meet the Team</div>
+      {/* <div className="flex flex-wrap justify-center gap-8 font-body text-sm tracking-wide uppercase">Meet the Team</div> */}
     </footer>
   );
 };

@@ -154,7 +154,7 @@ export const RegisterForm: React.FC = () => {
           <div className="space-y-1 relative">
             <label className="font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Password</label>
             <input value={password} onChange={e=>setPassword(e.target.value)} className="w-full bg-surface-container-low border-none focus:ring-0 rounded-sm text-on-surface py-4 px-4 placeholder:opacity-30 focus:border-b-2 focus:border-primary-container transition-all" placeholder="••••••••" type="password" />
-            <span className="material-symbols-outlined absolute right-4 top-10 text-on-surface-variant opacity-50 cursor-pointer text-sm">visibility</span>
+            {/* <span className="material-symbols-outlined absolute right-4 top-10 text-on-surface-variant opacity-50 cursor-pointer text-sm">visibility</span> */}
           </div>
 
           <div className="pt-4">
