@@ -13,10 +13,9 @@ export interface ResearchPosting {
 interface ResearchCardProps {
   posting: ResearchPosting;
   variant?: 'featured' | 'standard';
-  onApply: (posting: ResearchPosting) => void; // 1. Added to interface
+  onApply: (posting: ResearchPosting) => void;
 }
 
-// 2. Added onApply to the destructuring here
 export const ResearchCard: React.FC<ResearchCardProps> = ({ posting, variant = 'standard', onApply }) => {
   if (variant === 'featured') {
     return (
@@ -34,7 +33,12 @@ export const ResearchCard: React.FC<ResearchCardProps> = ({ posting, variant = '
             <span className="material-symbols-outlined text-outline-variant text-sm select-none" style={{ fontVariationSettings: "'FILL' 1" }}>bookmark</span>
           </div>
           <h3 className="font-headline text-3xl font-bold text-on-surface mb-4 leading-tight">{posting.title}</h3>
-          <p className="font-body text-secondary text-sm mb-6 leading-relaxed line-clamp-3 overflow-hidden text-ellipsis h-[63px]">{posting.description}</p>
+          
+          {/* SCROLLABLE TEXT FIX: Removed line-clamp and added overflow-y-auto */}
+          <p className="font-body text-secondary text-sm mb-6 leading-relaxed overflow-y-auto h-[63px] pr-2 scrollbar-thin">
+            {posting.description}
+          </p>
+
           <div className="mt-auto space-y-4">
             <div className="flex items-center gap-3">
               <div className="h-6 w-6 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface uppercase font-bold text-[10px]">
@@ -49,7 +53,6 @@ export const ResearchCard: React.FC<ResearchCardProps> = ({ posting, variant = '
             </div>
             <div className="pt-6 flex items-center justify-between">
               <span className="font-label text-xs text-primary font-bold">MAJOR: {posting.requiredMajor?.toUpperCase()}</span>
-              {/* Added onClick here */}
               <button 
                 onClick={() => onApply(posting)}
                 className="bg-primary-container text-on-primary-fixed px-6 py-2.5 rounded-md font-body font-bold text-sm hover:brightness-105 active:scale-95 transition-all"
@@ -70,7 +73,12 @@ export const ResearchCard: React.FC<ResearchCardProps> = ({ posting, variant = '
         <span className="font-label text-[10px] uppercase tracking-widest text-secondary font-bold">Open Position</span>
       </div>
       <h3 className="font-headline text-xl font-bold text-on-surface mb-3">{posting.title}</h3>
-      <p className="font-body text-secondary text-xs mb-6 italic line-clamp-3 overflow-hidden text-ellipsis h-[54px]">{posting.description}</p>
+      
+      {/* SCROLLABLE TEXT FIX: Removed line-clamp and added overflow-y-auto */}
+      <p className="font-body text-secondary text-xs mb-6 italic overflow-y-auto h-[54px] pr-2 scrollbar-thin">
+        {posting.description}
+      </p>
+
       <div className="mt-auto space-y-4">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-lg text-outline-variant select-none">person</span>
@@ -86,9 +94,7 @@ export const ResearchCard: React.FC<ResearchCardProps> = ({ posting, variant = '
             <span className="font-label text-[10px] text-on-surface-variant font-bold truncate pr-2 max-w-[150px]">
               MAJOR: {posting.requiredMajor?.toUpperCase() || "ANY"}
             </span>
-            <button className="italic font-headline text-primary text-sm hover:underline">View Details</button>
           </div>
-          {/* Added onClick here */}
           <button 
             onClick={() => onApply(posting)}
             className="w-full mt-4 bg-primary-container text-on-primary-fixed py-2 rounded-md font-body font-bold text-sm hover:brightness-105 active:scale-95 transition-all"
